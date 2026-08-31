@@ -1,5 +1,5 @@
 {
-  "name": "c-users-josev-desktop-galileo-races-web",
+  "name": "galileo-races-web",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -9,12 +9,33 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "start": "node ./dist/server/entry.mjs",
+    "astro": "astro",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "npm run build && playwright test"
   },
   "dependencies": {
-    "astro": "^7.2.9"
+    "@astrojs/node": "^11.1.4",
+    "@astrojs/react": "^6.0.4",
+    "astro": "^7.2.9",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.5.4"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@playwright/test": "^1.62.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "jsdom": "^29.1.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
   }
 }

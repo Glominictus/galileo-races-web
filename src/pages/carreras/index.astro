@@ -1,0 +1,9 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CatalogExplorer from '@/components/CatalogExplorer';
+import { getRacePortalClient } from '@/lib/race-portal/index.server';
+const { items } = await getRacePortalClient().listRaces();
+const provinces = [...new Set(items.map((race) => race.province))].sort();
+---
+<BaseLayout title="Carreras — PULSO" description="Encuentra carreras de asfalto, trail y andainas. Filtra por fecha, provincia y terreno."><section class="page-heading"><span class="section-index">Calendario 2026</span><h1>Carreras con<br /><em>algo que contar.</em></h1><p>Busca por territorio, distancia o terreno. Galileo confirmará siempre las plazas y el precio al inscribirte.</p></section><section class="catalog-section"><CatalogExplorer initialRaces={items} provinces={provinces} client:load /></section></BaseLayout>
+<style>.page-heading{padding:clamp(4rem,9vw,9rem) clamp(1.25rem,5vw,5rem) 4rem;background:var(--ink);color:var(--white)}.page-heading .section-index{color:var(--lime)}.page-heading h1{font-size:clamp(4rem,9vw,9rem);line-height:.82;margin:1.4rem 0 2rem;letter-spacing:-.075em}.page-heading h1 em{font-style:normal;color:var(--lime)}.page-heading p{max-width:38rem;color:#a9aba4;line-height:1.6}.catalog-section{padding:clamp(2rem,5vw,5rem)}</style>

@@ -1,0 +1,15 @@
+---
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/carreras', label: 'Carreras' },
+  { href: '/mis-carreras', label: 'Mis carreras' },
+];
+---
+
+<header class="site-header">
+  <a class="wordmark" href="/" aria-label="PULSO, inicio">PULSO<span>.</span></a>
+  <nav aria-label="Navegación principal">
+    {nav.map((item) => <a class:list={{ active: path.startsWith(item.href) }} href={item.href}>{item.label}</a>)}
+    <a class="nav-account" href="/acceso">Entrar <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>

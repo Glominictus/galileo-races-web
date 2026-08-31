@@ -1,0 +1,5 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'; import RaceCheckout from '@/components/RaceCheckout'; import { getRacePortalClient } from '@/lib/race-portal/index.server'; import { RacePortalError } from '@/lib/race-portal/client';
+const { slug }=Astro.params; let race; try{race=await getRacePortalClient().getRace(slug??'')}catch(error){if(error instanceof RacePortalError&&error.status===404)return Astro.redirect('/404');throw error}
+---
+<BaseLayout title={`Inscripción · ${race.name} — PULSO`} description={`Inscripción segura para ${race.name}`} image={race.imageUrl} noindex><RaceCheckout race={race} client:load /></BaseLayout>

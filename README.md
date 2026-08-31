@@ -1,43 +1,55 @@
-# Astro Starter Kit: Minimal
+# PULSO · Galileo Races Web
 
-```sh
-npm create astro@latest -- --template minimal
+Marketplace multiinstalación de carreras construido con Astro. La primera fase utiliza datos simulados, pero toda la aplicación consume una única interfaz (`RacePortalClient`) preparada para conectarse a Galileo.
+
+## Puesta en marcha
+
+```bash
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+En Windows, copia `.env.example` como `.env`. Por defecto `GALILEO_USE_MOCKS=true` y no es necesario ejecutar Galileo.
 
-## 🚀 Project Structure
+## Comandos
 
-Inside of your Astro project, you'll see the following folders and files:
+- `npm run dev`: desarrollo local.
+- `npm run build`: build SSR para Node.
+- `npm run start`: inicia el build SSR generado.
+- `npm run check`: comprobación Astro/TypeScript.
+- `npm test`: pruebas unitarias.
+- `npm run test:e2e`: build y pruebas Playwright en escritorio y móvil.
+
+## Arquitectura
 
 ```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+Browser → Astro pages/islands → Astro BFF (/api/*) → RacePortalClient
+                                                   ├─ MockRacePortalClient
+                                                   └─ GalileoRacePortalClient
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+- Los componentes y páginas nunca importan fixtures.
+- La API key de Galileo solo se lee en código `.server.ts`.
+- Las cookies de sesión son `HttpOnly`, `SameSite=Lax` y `Secure` en producción.
+- El BFF valida cuerpos, limita el acceso a cuenta/pedidos y exige idempotencia al crear una inscripción.
+- Precios, plazas, dorsales y pagos reales seguirán siendo responsabilidad de Galileo.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Contrato esperado de Galileo
 
-Any static assets, like images, can be placed in the `public/` directory.
+Base: `/api/v2/galileo/race-portal`
 
-## 🧞 Commands
+- `GET /races`
+- `GET /races/:slug`
+- `GET /races/:slug/availability`
+- `POST /auth/login`
+- `POST /auth/register`
+- `GET /account`
+- `GET /account/registrations`
+- `POST /races/:slug/orders`
 
-All commands are run from the root of the project, from a terminal:
+Los tipos que formalizan este contrato están en `src/lib/race-portal/types.ts`. El proveedor HTTP está listo; basta configurar las variables de entorno y poner `GALILEO_USE_MOCKS=false`.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Identidad visual
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+PULSO es un nombre de trabajo modificable. La dirección visual mezcla fotografía deportiva documental, negro cálido, papel y un único acento lima. Las imágenes del repositorio fueron generadas expresamente para este prototipo y no dependen de servicios externos.

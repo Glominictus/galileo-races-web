@@ -1,0 +1,4 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'; import RegistrationsPanel from '@/components/RegistrationsPanel';
+---
+<BaseLayout title="Mis carreras — PULSO" description="Tus inscripciones y dorsales en un solo lugar." noindex><section class="registrations-page"><span class="section-index">Cuenta global</span><h1>Mis carreras.</h1><p class="page-lead">Inscripciones de todos los organizadores conectados con Galileo.</p><RegistrationsPanel client:load /></section></BaseLayout><style>.registrations-page{min-height:calc(100vh - var(--header));padding:clamp(4rem,9vw,9rem) clamp(1.25rem,6vw,6rem)}.registrations-page>h1{font-size:clamp(4rem,9vw,9rem);line-height:.85;margin:1rem 0}.page-lead{color:var(--muted);margin-bottom:4rem}</style>

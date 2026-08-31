@@ -1,0 +1,20 @@
+---
+import type { RaceSummary } from '@/lib/race-portal/types';
+import { formatMoney, formatShortDate, statusCopy } from '@/lib/format';
+interface Props { race: RaceSummary; index?: number; }
+const { race, index = 1 } = Astro.props;
+---
+
+<article class="race-row reveal-row">
+  <a class="race-row__image" href={`/carreras/${race.slug}`} aria-label={`Ver ${race.name}`}>
+    <img src={race.imageUrl} alt={`Corredores en ${race.name}`} loading={index > 2 ? 'lazy' : 'eager'} />
+    <span class="race-row__number">{String(index).padStart(2, '0')}</span>
+  </a>
+  <div class="race-row__content">
+    <div class="race-row__eyebrow"><span>{formatShortDate(race.startsAt)}</span><span>{race.city} · {race.province}</span></div>
+    <h3><a href={`/carreras/${race.slug}`}>{race.name}</a></h3>
+    <div class="race-row__meta"><span>{race.distanceLabel}</span><span>Desde {formatMoney(race.priceFrom)}</span></div>
+    <div class:list={['status', `status--${race.status}`]}><i></i>{statusCopy[race.status]}</div>
+  </div>
+  <a class="round-link" href={`/carreras/${race.slug}`} aria-label={`Abrir ${race.name}`}><span>↗</span></a>
+</article>
