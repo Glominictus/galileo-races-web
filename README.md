@@ -15,8 +15,8 @@ En Windows, copia `.env.example` como `.env`. Por defecto `GALILEO_USE_MOCKS=tru
 ## Comandos
 
 - `npm run dev`: desarrollo local.
-- `npm run build`: build SSR para Node.
-- `npm run start`: inicia el build SSR generado.
+- `npm run build`: build SSR (Node en local; adaptador Vercel cuando `VERCEL=1`).
+- `npm run start`: inicia el build SSR local generado.
 - `npm run check`: comprobación Astro/TypeScript.
 - `npm test`: pruebas unitarias.
 - `npm run test:e2e`: build y pruebas Playwright en escritorio y móvil.
