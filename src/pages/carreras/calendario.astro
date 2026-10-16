@@ -1,0 +1,61 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import EventCalendar from "@/components/EventCalendar";
+import { getRacePortalClient } from "@/lib/race-portal/index.server";
+
+const { items } = await getRacePortalClient().listRaces();
+---
+
+<BaseLayout
+  title="Calendario Mensual — PULSO"
+  description="Consulta las fechas y estados de inscripción de las carreras en Galicia."
+>
+  <section class="page-heading">
+    <span class="section-index">Calendario 2026</span>
+    <h1>Visualiza las fechas<br /><em>y su disponibilidad.</em></h1>
+    <p>
+      Sigue el estado de las inscripciones mes a mes.
+    </p>
+  </section>
+
+  <section class="calendar-section">
+    <EventCalendar races={items} client:load />
+  </section>
+</BaseLayout>
+
+<style>
+  .page-heading {
+    padding: clamp(3rem, 7vw, 7rem) clamp(1.25rem, 5vw, 5rem) 2rem;
+    background: var(--ink, #050707);
+    color: var(--white, #ffffff);
+  }
+
+  .page-heading .section-index {
+    color: #ff6b00;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+
+  .page-heading h1 {
+    font-size: clamp(3.5rem, 8vw, 7.5rem) !important;
+    line-height: 0.85 !important;
+    margin: 1.4rem 0 1.5rem !important;
+    letter-spacing: -0.06em !important;
+    color: #ffffff !important; 
+  }
+
+  .page-heading h1 em {
+    font-style: normal !important;
+    color: #ff6b00 !important;
+  }
+
+  .page-heading p {
+    max-width: 38rem;
+    color: #a9aba4;
+    line-height: 1.6;
+    font-size: 1.1rem;
+  }
+</style>
