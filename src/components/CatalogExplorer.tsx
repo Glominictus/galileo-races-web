@@ -9,26 +9,65 @@ interface Props {
   provinces: string[];
 }
 
+export function parseDistances(label: string): number[] {
+  const matches = label.match(/\d+(?:[.,]\d+)?/g);
+  return matches ? matches.map((val) => parseFloat(val.replace(',', '.'))) : [];
+}
+
+export function matchesDistance(raceDistanceLabel: string, selectedDistance: string): boolean {
+  if (!selectedDistance) return true;
+  const target = parseFloat(selectedDistance);
+  if (Number.isNaN(target)) return true;
+
+  const distances = parseDistances(raceDistanceLabel);
+  return distances.some((km) => {
+    if (target === 21) {
+      // Media maratón: 21 o 21.1 km
+      return km >= 21 && km <= 21.5;
+    }
+    if (target === 42) {
+      // Maratón: 42 o 42.2 km
+      return km >= 42 && km <= 42.5;
+    }
+    // Comparación numérica exacta para 5k, 10k, 15k, etc. (tolerancia 0.5 km)
+    return Math.abs(km - target) < 0.5;
+  });
+}
+
+export function matchesQuery(race: RaceSummary, term: string): boolean {
+  if (!term) return true;
+
+  const inTextFields = [race.name, race.city, race.province, race.distanceLabel].some((value) =>
+    (value ?? '').toLocaleLowerCase('es').includes(term)
+  );
+  if (inTextFields) return true;
+
+  // Si busca "10k", "21k", etc., comprobar la distancia numérica exacta
+  const kMatch = term.match(/^(\d+(?:[.,]\d+)?)\s*k$/);
+  if (kMatch) {
+    return matchesDistance(race.distanceLabel, kMatch[1]);
+  }
+
+  return false;
+}
+
 export default function CatalogExplorer({ initialRaces, provinces }: Props) {
   const [query, setQuery] = useState('');
   const [province, setProvince] = useState('');
   const [type, setType] = useState<RaceType | ''>('');
   const [onlyOpen, setOnlyOpen] = useState(false);
-  const [distance, setDistance] = useState('')// distancia
+  const [distance, setDistance] = useState('');
 
   const races = useMemo(
     () =>
       initialRaces.filter((race) => {
         const term = query.trim().toLocaleLowerCase('es');
         return (
-          (!term ||
-            [race.name, race.city, race.province].some((value) =>
-              value.toLocaleLowerCase('es').includes(term)
-            )) &&
+          matchesQuery(race, term) &&
           (!province || race.province === province) &&
           (!type || race.type === type) &&
-          (!onlyOpen || race.status === 'open')&&
-          (!distance || race.distanceLabel.includes(distance))
+          (!onlyOpen || race.status === 'open') &&
+          matchesDistance(race.distanceLabel, distance)
         );
       }),
     [initialRaces, query, province, type, onlyOpen, distance]
@@ -87,11 +126,12 @@ export default function CatalogExplorer({ initialRaces, provinces }: Props) {
         <label> 
           <span>Distancia</span>
           <select value={distance} onChange={(event) => setDistance(event.target.value)}>
-              <option value=''>Todas</option>
-              <option value='5'>5 Km</option>
-              <option value='10'>10 Km</option>
-              <option value='21'>21 Km</option>
-              <option value='42'>42 Km</option>
+            <option value="">Todas</option>
+            <option value="5">5 Km</option>
+            <option value="10">10 Km</option>
+            <option value="15">15 Km</option>
+            <option value="21">21 Km</option>
+            <option value="42">42 Km</option>
           </select>
         </label>
 

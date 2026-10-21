@@ -90,42 +90,47 @@ const jsonLd = {
     </div>
   </section>
   <section class="race-modalities">
-    <header>
-      <span class="section-index">Modalidades</span><h2>
+    <header class="modalities-intro">
+      <span class="section-index">Modalidades</span>
+      <h2>
         Elige tu<br />propio ritmo.
       </h2>
-    </header><div>
-      {
-        race.modalities.map((item, index) => (
-          <article>
-            <strong>
-              {item.distanceKm.toLocaleString("es-ES")}
-              <small> km</small>
-            </strong>
-            <div>
-              <p>
-                {formatDate(item.startAt, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-              <>
+    </header>
+    <div class="modalities-scroll-container">
+      <div class="modalities-list">
+        {
+          race.modalities.map((item, index) => (
+            <article class="modality-row">
+              <!-- Columna 1: Índice y Distancia en grande -->
+              <div class="modality-distance">
+                <span class="modality-index">0{index + 1}</span>
+                <strong>
+                  {item.distanceKm.toLocaleString("es-ES")}
+                  <small> km</small>
+                </strong>
+              </div>
+              <div class="modality-info">
                 <h3>{item.name}</h3>
+                <p>
+                  {formatDate(item.startAt, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
                 <span class:list={["status", `status--${item.status}`]}>
                   <i />
                   {item.status === "open"
                     ? `${item.availablePlaces} plazas`
                     : statusCopy[item.status]}
                 </span>
-              </>
-            </div>
-            <>
-              <span class="modality-index">0{index + 1}</span>
-              <b>{formatMoney(item.priceFrom)}</b>
-            </>
-          </article>
-        ))
-      }
+              </div>
+              <div class="modality-price">
+                <b>{formatMoney(item.priceFrom)}</b>
+              </div>
+            </article>
+          ))
+        }
+      </div>
     </div>
   </section>
   <section class="race-detail">
@@ -286,8 +291,8 @@ const jsonLd = {
   }
   .race-modalities article {
     display: grid;
-    grid-template-columns: 2rem 8rem 1fr auto;
-    gap: 1.4rem;
+    grid-template-columns: 6.5rem 1fr auto !important;
+    gap: clamp(2rem, 4vw, 4rem);
     align-items: center;
     padding: 1.5rem 0;
     border-bottom: 1px solid var(--line);
@@ -406,4 +411,20 @@ const jsonLd = {
       columns: 1;
     }
   }
+.modalities-scroll-container,
+.modalities-list {
+  max-height: 520px; 
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.modality-row:last-child {
+  border-bottom: 1px solid var(--line, rgba(0, 0, 0, 0.1));
+}
+.modality-price {
+  font: 700 1.3rem "Manrope", sans-serif;
+  color: var(--ink, #0b1220);
+  white-space: nowrap;
+  text-align: right; 
+  padding-right: 1.5rem;
+}
 </style>
