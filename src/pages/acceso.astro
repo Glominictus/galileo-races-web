@@ -1,76 +1,122 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import AuthPanel from "@/components/AuthPanel";
+import { getSessionToken } from "@/lib/api-response";
+
+const sessionToken = getSessionToken(Astro.cookies);
+const rawNext = Astro.url.searchParams.get("next") ?? "";
+const safeNext = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
+
+if (sessionToken) {
+    return Astro.redirect(safeNext || "/cuenta");
+}
 ---
 
 <BaseLayout
     title="Acceso — PULSO"
-    description="Entra o crea tu cuenta PULSO."
+    description="Entra con tu DNI o crea tu cuenta PULSO."
     noindex
-    ><section class="access-page">
+>
+    <section class="access-page">
         <div class="access-copy">
-            <span class="section-index">Tu cuenta global</span><h1>
-                Un acceso.<br /><em>Todos tus dorsales.</em>
-            </h1><p>
-                Tu cuenta PULSO conecta de forma segura con el usuario de cada
-                instalación en Galileo.
+            <span class="section-index">Identidad única Galileo</span>
+            <h1>
+                Tu DNI.<br /><em>Todos tus dorsales.</em>
+            </h1>
+            <p>
+                Accede con tu documento oficial para consultar tus inscripciones,
+                descargar justificantes y agilizar el dorsal en todas las pruebas
+                conectadas con Galileo.
             </p>
-        </div><div class="access-form"><AuthPanel client:load /></div>
-    </section></BaseLayout
-><style>
+        </div>
+        <div class="access-form">
+            <AuthPanel nextUrl={safeNext || undefined} client:load />
+        </div>
+    </section>
+</BaseLayout>
+
+<style>
     .access-page {
         min-height: calc(100svh - var(--header));
         display: grid;
-        grid-template-columns: 1.15fr 0.85fr;
+        grid-template-columns: 1.1fr 0.9fr;
         background: var(--ink);
         color: var(--white);
     }
     .access-copy {
-        padding: clamp(3rem, 8vw, 8rem);
+        padding: clamp(3rem, 7vw, 7rem);
         display: flex;
         justify-content: center;
         flex-direction: column;
         background:
-            linear-gradient(90deg, rgba(5, 7, 7, 0.9), rgba(5, 7, 7, 0.2)),
+            linear-gradient(105deg, rgba(11, 18, 32, 0.94) 15%, rgba(11, 18, 32, 0.55) 100%),
             url("/images/hero-running-galicia.png") center/cover;
     }
     .access-copy .section-index {
         color: var(--lime);
     }
     .access-copy h1 {
-        font-size: clamp(3.8rem, 7vw, 7.3rem);
-        line-height: 0.84;
-        margin: 1.2rem 0 2rem;
+        font-size: clamp(3.4rem, 6.5vw, 6.8rem);
+        line-height: 0.88;
+        margin: 1.2rem 0 1.8rem;
     }
     .access-copy h1 em {
         font-style: normal;
         color: var(--lime);
     }
     .access-copy p {
-        max-width: 32rem;
-        color: #b7b9b1;
+        max-width: 34rem;
+        color: #cbd5e1;
+        font-size: 1.05rem;
         line-height: 1.6;
+        margin-bottom: 2.5rem;
+    }
+    .access-perks {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        max-width: 30rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        padding-top: 2rem;
+    }
+    .access-perks li {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    .access-perks strong {
+        font-size: 0.95rem;
+        color: var(--white);
+    }
+    .access-perks span {
+        font-size: 0.85rem;
+        color: #94a3b8;
     }
     .access-form {
         display: flex;
         align-items: center;
-        padding: clamp(1rem, 5vw, 5rem);
-        background: #deddd5;
+        justify-content: center;
+        padding: clamp(1.5rem, 5vw, 4.5rem);
+        background: var(--paper);
     }
     .access-form > * {
         width: 100%;
-        max-width: 35rem;
+        max-width: 32rem;
         margin: auto;
     }
-    @media (max-width: 800px) {
+    @media (max-width: 900px) {
         .access-page {
             grid-template-columns: 1fr;
         }
         .access-copy {
-            min-height: 28rem;
+            min-height: 24rem;
+            padding: 3rem 1.5rem;
         }
         .access-form {
-            padding: 1rem;
+            padding: 2rem 1.25rem 3.5rem;
         }
     }
 </style>

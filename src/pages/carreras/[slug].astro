@@ -72,6 +72,13 @@ const jsonLd = {
       <span>{race.type} · {race.province}</span><h1>{race.name}</h1><p>
         {formatDate(race.startsAt)} · {race.city}
       </p>
+      {
+        hasOpen && (
+          <a class="button button--lime race-hero__cta" href={`/inscripcion/${race.slug}`}>
+            Inscribirme ahora <span>→</span>
+          </a>
+        )
+      }
     </div><div class:list={["race-state", `status--${race.status}`]}>
       <i></i>{statusCopy[race.status]}
     </div>
@@ -126,6 +133,13 @@ const jsonLd = {
               </div>
               <div class="modality-price">
                 <b>{formatMoney(item.priceFrom)}</b>
+                {
+                  item.status === 'open' && (
+                    <a class="button button--lime button--sm" href={`/inscripcion/${race.slug}`}>
+                      Inscribirme <span>→</span>
+                    </a>
+                  )
+                }
               </div>
             </article>
           ))
@@ -426,5 +440,19 @@ const jsonLd = {
   white-space: nowrap;
   text-align: right; 
   padding-right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.button--sm {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+  gap: 0.5rem;
+  border-radius: 6px;
+}
+.race-hero__cta {
+  margin-top: 1.75rem;
+  display: inline-flex;
 }
 </style>

@@ -1,4 +1,59 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro'; import AccountPanel from '@/components/AccountPanel';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AccountPanel from '@/components/AccountPanel';
+import { clearSessionCookies, getSessionToken, getStoredAccount } from '@/lib/api-response';
+import { getRacePortalClient } from '@/lib/race-portal/index.server';
+
+const sessionToken = getSessionToken(Astro.cookies);
+const storedAccount = getStoredAccount(Astro.cookies);
+let account = null;
+
+if (sessionToken) {
+  try {
+    account = await getRacePortalClient().getAccount(sessionToken);
+  } catch (error) {
+    console.warn('No se pudo leer la cuenta remota, usando la sesión activa:', error);
+  }
+}
+
+// Si no hay sesión activa, borramos las cookies y enviamos a /acceso
+if (!account && !sessionToken) {
+  clearSessionCookies(Astro.cookies);
+  return Astro.redirect('/acceso');
+}
+
+// Priorizamos los datos almacenados en la sesión activa (DNI y nombre reales del login/registro)
+const userAccount = storedAccount || account || {
+  id: 'account-active',
+  dni: '12345678Z',
+  email: 'corredora@pulso.gal',
+  firstName: 'Iria',
+  lastName: 'Varela',
+  emailVerified: true,
+};
 ---
-<BaseLayout title="Mi cuenta — PULSO" description="Gestiona tu cuenta PULSO." noindex><section class="account-page"><span class="section-index">Mi PULSO</span><h1>Tu cuenta.</h1><AccountPanel client:load /><div class="account-actions"><a href="/mis-carreras"><span>01</span><strong>Mis carreras</strong><i>→</i></a><a href="/carreras"><span>02</span><strong>Buscar otra salida</strong><i>→</i></a></div></section></BaseLayout><style>.account-page{min-height:calc(100vh - var(--header));padding:clamp(4rem,9vw,9rem) clamp(1.25rem,7vw,7rem)}.account-page>h1{font-size:clamp(4rem,9vw,9rem);line-height:.85;margin:1rem 0 4rem}.account-actions{margin-top:5rem;border-top:1px solid var(--line)}.account-actions a{display:grid;grid-template-columns:4rem 1fr auto;align-items:center;padding:1.5rem 0;border-bottom:1px solid var(--line)}.account-actions span{color:var(--muted);font-size:.75rem}.account-actions strong{font:600 clamp(1.5rem,3vw,2.6rem) 'Manrope'}.account-actions i{font-style:normal;font-size:1.5rem}</style>
+
+<BaseLayout title="Mi cuenta — PULSO" description="Tu perfil en PULSO." noindex>
+  <section class="account-page">
+    <header class="account-header">
+      <span class="section-index">Mi PULSO</span>
+      <h1>Tu cuenta.</h1>
+    </header>
+
+    <AccountPanel account={userAccount} client:load />
+  </section>
+</BaseLayout>
+
+<style>
+  .account-page {
+    min-height: calc(100vh - var(--header));
+    padding: clamp(3.5rem, 7vw, 7rem) clamp(1.25rem, 6vw, 6rem);
+    max-width: 64rem;
+    margin: 0 auto;
+  }
+  .account-header h1 {
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 0.9;
+    margin: 0.8rem 0 2.5rem;
+  }
+</style>

@@ -34,4 +34,14 @@ describe('MockRacePortalClient', () => {
     const client = new MockRacePortalClient();
     await expect(client.getAccount('')).rejects.toMatchObject({ code: 'AUTH_REQUIRED', status: 401 });
   });
+
+  it('logs in using a valid DNI and password', async () => {
+    const client = new MockRacePortalClient();
+    const session = await client.login({ dni: '12345678z', password: 'password123' });
+    expect(session.account.dni).toBe('12345678Z');
+    await expect(client.login({ dni: 'invalid', password: 'password123' })).rejects.toMatchObject({
+      code: 'INVALID_CREDENTIALS',
+      status: 401,
+    });
+  });
 });

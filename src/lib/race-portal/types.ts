@@ -79,6 +79,7 @@ export interface PortalAccount {
   email: string;
   firstName: string;
   lastName: string;
+  dni: string;
   emailVerified: boolean;
 }
 
@@ -126,11 +127,12 @@ export interface RaceOrderResult {
 }
 
 export interface LoginInput {
-  email: string;
+  dni: string;
   password: string;
 }
 
 export interface RegisterInput extends LoginInput {
   firstName: string;
   lastName: string;
+  email: string;
 }

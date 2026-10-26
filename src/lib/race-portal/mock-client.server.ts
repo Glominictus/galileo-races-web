@@ -1,9 +1,14 @@
 import type { RacePortalClient } from './client';
 import { RacePortalError } from './client';
 import { mockAccount, mockRaces, mockRegistrations } from './mock-data.server';
-import type { CreateRaceOrderInput, LoginInput, RaceFilters, RegisterInput } from './types';
+import type { CreateRaceOrderInput, LoginInput, PortalAccount, RaceFilters, RegisterInput, Registration } from './types';
 
 const ordersByKey = new Map<string, { orderId: string; total: number; paymentUrl: string }>();
+const accountsByDni = new Map<string, PortalAccount>([[mockAccount.dni.toUpperCase(), mockAccount]]);
+const sessionsByToken = new Map<string, PortalAccount>();
+const registrationsByToken = new Map<string, Registration[]>();
+
+const dniRegex = /^([XYZ]\d{7}|\d{8})[A-Z]$/;
 
 export class MockRacePortalClient implements RacePortalClient {
   async listRaces(filters: RaceFilters = {}) {
@@ -27,17 +32,51 @@ export class MockRacePortalClient implements RacePortalClient {
   }
 
   async login(input: LoginInput) {
-    if (!input.email.includes('@') || input.password.length < 8) throw new RacePortalError('Revisa tu email y contraseña', 'INVALID_CREDENTIALS', 401);
-    return { token: 'mock-session-token', account: { ...mockAccount, email: input.email } };
+    const normalizedDni = input.dni.trim().toUpperCase().replace(/[\s-]/g, '');
+    if (!dniRegex.test(normalizedDni) || input.password.length < 8) {
+      throw new RacePortalError('Revisa tu DNI/NIE y contraseña (mínimo 8 caracteres)', 'INVALID_CREDENTIALS', 401);
+    }
+    const existing = accountsByDni.get(normalizedDni);
+    if (!existing) {
+      throw new RacePortalError(
+        'DNI no registrado.',
+        'INVALID_CREDENTIALS',
+        401
+      );
+    }
+    const token = `mock-session-${normalizedDni}`;
+    sessionsByToken.set(token, existing);
+    return { token, account: existing };
   }
 
   async register(input: RegisterInput) {
-    if (!input.email.includes('@') || input.password.length < 8) throw new RacePortalError('La contraseña debe tener al menos 8 caracteres', 'INVALID_REGISTRATION');
-    return { token: 'mock-session-token', account: { ...mockAccount, email: input.email, firstName: input.firstName, lastName: input.lastName } };
+    const normalizedDni = input.dni.trim().toUpperCase().replace(/[\s-]/g, '');
+    if (!dniRegex.test(normalizedDni) || !input.email.includes('@') || input.password.length < 8) {
+      throw new RacePortalError('Revisa los datos del registro y asegúrate de que la contraseña tenga al menos 8 caracteres', 'INVALID_REGISTRATION', 400);
+    }
+    const account: PortalAccount = {
+      id: `account-${Date.now()}`,
+      dni: normalizedDni,
+      email: input.email.trim(),
+      firstName: input.firstName.trim(),
+      lastName: input.lastName.trim(),
+      emailVerified: true,
+    };
+    accountsByDni.set(normalizedDni, account);
+    const token = `mock-session-${normalizedDni}`;
+    sessionsByToken.set(token, account);
+    return { token, account };
   }
 
-  async getAccount(token: string) { this.assertToken(token); return mockAccount; }
-  async getRegistrations(token: string) { this.assertToken(token); return mockRegistrations; }
+  async getAccount(token: string) {
+    this.assertToken(token);
+    return sessionsByToken.get(token) ?? mockAccount;
+  }
+
+  async getRegistrations(token: string) {
+    this.assertToken(token);
+    return registrationsByToken.get(token) ?? mockRegistrations;
+  }
 
   async createRaceOrder(input: CreateRaceOrderInput, token: string) {
     this.assertToken(token);
@@ -51,6 +90,23 @@ export class MockRacePortalClient implements RacePortalClient {
     const orderId = `mock-${input.idempotencyKey.slice(0, 8)}`;
     const order = { orderId, total: modality.priceFrom, paymentUrl: `/pago/retorno?order=${orderId}` };
     ordersByKey.set(input.idempotencyKey, order);
+
+    const currentList = registrationsByToken.get(token) ?? [...mockRegistrations];
+    const newRegistration: Registration = {
+      id: `reg-${Date.now()}`,
+      raceSlug: race.slug,
+      raceName: race.name,
+      eventName: `${modality.name} · ${modality.distanceKm.toLocaleString('es-ES')} km`,
+      startsAt: modality.startAt || race.startsAt,
+      location: `${race.city}, ${race.province}`,
+      participantName: `${input.participant.firstName} ${input.participant.lastName}`.trim(),
+      bibNumber: Math.floor(Math.random() * 400) + 100,
+      paidState: 'paid',
+      total: modality.priceFrom,
+      imageUrl: race.imageUrl,
+    };
+    registrationsByToken.set(token, [newRegistration, ...currentList]);
+
     return { ...order, paidState: 'pending' as const };
   }
 

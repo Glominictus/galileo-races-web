@@ -1,5 +1,40 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro'; import RaceCheckout from '@/components/RaceCheckout'; import { getRacePortalClient } from '@/lib/race-portal/index.server'; import { RacePortalError } from '@/lib/race-portal/client';
-const { slug }=Astro.params; let race; try{race=await getRacePortalClient().getRace(slug??'')}catch(error){if(error instanceof RacePortalError&&error.status===404)return Astro.redirect('/404');throw error}
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RaceCheckout from '@/components/RaceCheckout';
+import { getRacePortalClient } from '@/lib/race-portal/index.server';
+import { RacePortalError } from '@/lib/race-portal/client';
+import { getSessionToken, getStoredAccount } from '@/lib/api-response';
+
+const { slug } = Astro.params;
+let race;
+
+try {
+  race = await getRacePortalClient().getRace(slug ?? '');
+} catch (error) {
+  if (error instanceof RacePortalError && error.status === 404) {
+    return Astro.redirect('/404');
+  }
+  throw error;
+}
+
+const sessionToken = getSessionToken(Astro.cookies);
+const storedAccount = getStoredAccount(Astro.cookies);
+let account = storedAccount;
+
+if (sessionToken && !account) {
+  try {
+    account = await getRacePortalClient().getAccount(sessionToken);
+  } catch (error) {
+    console.warn('No se pudo cargar la cuenta para el checkout:', error);
+  }
+}
 ---
-<BaseLayout title={`Inscripción · ${race.name} — PULSO`} description={`Inscripción segura para ${race.name}`} image={race.imageUrl} noindex><RaceCheckout race={race} client:load /></BaseLayout>
+
+<BaseLayout
+  title={`Inscripción · ${race.name} — PULSO`}
+  description={`Inscripción oficial para ${race.name}`}
+  image={race.imageUrl}
+  noindex
+>
+  <RaceCheckout race={race} initialAccount={account} client:load />
+</BaseLayout>
