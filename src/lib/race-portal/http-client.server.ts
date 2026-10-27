@@ -9,7 +9,7 @@ import {
   slugifyRace,
   type IntegrationsRace,
 } from './map-integrations-race.server';
-import type { CreateRaceOrderInput, LoginInput, PortalAccount, PortalSession, RaceAvailability, RaceDetail, RaceFilters, RaceOrderResult, RacePage, RegisterInput, Registration, RaceSummary } from './types';
+import type { CreateRaceOrderInput, LoginInput, PortalAccount, PortalSession, RaceAvailability, RaceDetail, RaceFilters, RaceOrderResult, RacePage, RegisterInput, Registration, RaceSummary, UpdateAccountInput } from './types';
 
 const unknownObject = z.object({}).loose();
 
@@ -75,6 +75,7 @@ export class GalileoRacePortalClient implements RacePortalClient {
   login(input: LoginInput) { return this.request<PortalSession>('/auth/login', this.jsonPost(input)); }
   register(input: RegisterInput) { return this.request<PortalSession>('/auth/register', this.jsonPost(input)); }
   getAccount(token: string) { return this.request<PortalAccount>('/account', { headers: this.headers(token) }); }
+  updateAccount(input: UpdateAccountInput, token: string) { return this.request<PortalAccount>('/account', { method: 'PATCH', headers: { ...this.headers(token), 'Content-Type': 'application/json' }, body: JSON.stringify(input) }); }
   getRegistrations(token: string) { return this.request<Registration[]>('/account/registrations', { headers: this.headers(token) }); }
   createRaceOrder(input: CreateRaceOrderInput, token: string) { return this.request<RaceOrderResult>(`/races/${encodeURIComponent(input.raceSlug)}/orders`, { ...this.jsonPost(input), headers: { ...this.headers(token), 'Idempotency-Key': input.idempotencyKey, 'Content-Type': 'application/json' } }); }
 

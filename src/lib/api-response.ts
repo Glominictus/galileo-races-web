@@ -1,4 +1,5 @@
 import type { AstroCookies } from 'astro';
+import { z } from 'zod';
 import { RacePortalError } from './race-portal/client';
 import type { PortalAccount } from './race-portal/types';
 
@@ -47,6 +48,15 @@ export function apiError(error: unknown) {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+
+  if (error instanceof z.ZodError) {
+    const firstMessage = error.issues[0]?.message ?? 'Datos introducidos no válidos';
+    return new Response(JSON.stringify({ message: firstMessage, code: 'INVALID_INPUT' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   console.error(error);
   return new Response(JSON.stringify({ message: 'No pudimos completar la solicitud', code: 'INTERNAL_ERROR' }), {
     status: 500,
@@ -55,5 +65,8 @@ export function apiError(error: unknown) {
 }
 
 export function json(data: unknown, init: ResponseInit = {}) {
-  return new Response(JSON.stringify(data), { ...init, headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) } });
+  return new Response(JSON.stringify(data), {
+    ...init,
+    headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) },
+  });
 }

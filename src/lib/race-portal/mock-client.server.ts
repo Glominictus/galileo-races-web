@@ -1,14 +1,13 @@
 import type { RacePortalClient } from './client';
 import { RacePortalError } from './client';
 import { mockAccount, mockRaces, mockRegistrations } from './mock-data.server';
-import type { CreateRaceOrderInput, LoginInput, PortalAccount, RaceFilters, RegisterInput, Registration } from './types';
+import type { CreateRaceOrderInput, LoginInput, PortalAccount, RaceFilters, RegisterInput, Registration, UpdateAccountInput } from './types';
+import { isValidDniOrNie, normalizeDocument } from '@/lib/domain/auth/identity';
 
 const ordersByKey = new Map<string, { orderId: string; total: number; paymentUrl: string }>();
 const accountsByDni = new Map<string, PortalAccount>([[mockAccount.dni.toUpperCase(), mockAccount]]);
 const sessionsByToken = new Map<string, PortalAccount>();
 const registrationsByToken = new Map<string, Registration[]>();
-
-const dniRegex = /^([XYZ]\d{7}|\d{8})[A-Z]$/;
 
 export class MockRacePortalClient implements RacePortalClient {
   async listRaces(filters: RaceFilters = {}) {
@@ -32,8 +31,8 @@ export class MockRacePortalClient implements RacePortalClient {
   }
 
   async login(input: LoginInput) {
-    const normalizedDni = input.dni.trim().toUpperCase().replace(/[\s-]/g, '');
-    if (!dniRegex.test(normalizedDni) || input.password.length < 8) {
+    const normalizedDni = normalizeDocument(input.dni);
+    if (!isValidDniOrNie(normalizedDni) || input.password.length < 8) {
       throw new RacePortalError('Revisa tu DNI/NIE y contraseña (mínimo 8 caracteres)', 'INVALID_CREDENTIALS', 401);
     }
     const existing = accountsByDni.get(normalizedDni);
@@ -50,8 +49,8 @@ export class MockRacePortalClient implements RacePortalClient {
   }
 
   async register(input: RegisterInput) {
-    const normalizedDni = input.dni.trim().toUpperCase().replace(/[\s-]/g, '');
-    if (!dniRegex.test(normalizedDni) || !input.email.includes('@') || input.password.length < 8) {
+    const normalizedDni = normalizeDocument(input.dni);
+    if (!isValidDniOrNie(normalizedDni) || !input.email.includes('@') || input.password.length < 8) {
       throw new RacePortalError('Revisa los datos del registro y asegúrate de que la contraseña tenga al menos 8 caracteres', 'INVALID_REGISTRATION', 400);
     }
     const account: PortalAccount = {
@@ -73,6 +72,22 @@ export class MockRacePortalClient implements RacePortalClient {
     return sessionsByToken.get(token) ?? mockAccount;
   }
 
+  async updateAccount(input: UpdateAccountInput, token: string) {
+    this.assertToken(token);
+    const current = sessionsByToken.get(token) ?? { ...mockAccount };
+    const updated: PortalAccount = {
+      ...current,
+      ...(input.firstName ? { firstName: input.firstName.trim() } : {}),
+      ...(input.lastName ? { lastName: input.lastName.trim() } : {}),
+      ...(input.phone !== undefined ? { phone: input.phone.trim() } : {}),
+      ...(input.birthDate !== undefined ? { birthDate: input.birthDate.trim() } : {}),
+      ...(input.club !== undefined ? { club: input.club.trim() } : {}),
+    };
+    sessionsByToken.set(token, updated);
+    accountsByDni.set(updated.dni.toUpperCase(), updated);
+    return updated;
+  }
+
   async getRegistrations(token: string) {
     this.assertToken(token);
     return registrationsByToken.get(token) ?? mockRegistrations;
@@ -91,6 +106,12 @@ export class MockRacePortalClient implements RacePortalClient {
     const order = { orderId, total: modality.priceFrom, paymentUrl: `/pago/retorno?order=${orderId}` };
     ordersByKey.set(input.idempotencyKey, order);
 
+    const departureTime = modality.startAt
+      ? `${new Date(modality.startAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} h`
+      : '09:30 h';
+    const bibPickupSchedule = race.schedule?.find((s) => /dorsal/i.test(s.label))?.time;
+    const bibPickupTime = bibPickupSchedule ? `Desde ${bibPickupSchedule} h` : '08:00 - 09:15 h';
+
     const currentList = registrationsByToken.get(token) ?? [...mockRegistrations];
     const newRegistration: Registration = {
       id: `reg-${Date.now()}`,
@@ -104,6 +125,8 @@ export class MockRacePortalClient implements RacePortalClient {
       paidState: 'paid',
       total: modality.priceFrom,
       imageUrl: race.imageUrl,
+      departureTime,
+      bibPickupTime,
     };
     registrationsByToken.set(token, [newRegistration, ...currentList]);
 

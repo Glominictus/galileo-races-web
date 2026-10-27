@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { RaceSummary } from '@/lib/race-portal/types';
-import { formatMoney, formatShortDate, statusCopy } from '@/lib/format';
+import { formatMoney, formatShortDate } from '@/lib/format';
 
 interface Props {
     races: RaceSummary[];

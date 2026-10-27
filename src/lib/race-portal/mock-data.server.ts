@@ -495,6 +495,8 @@ export const mockRegistrations: Registration[] = [
     paidState: 'paid',
     total: 14,
     imageUrl: '/images/race-stone-town.png',
+    departureTime: '10:00 h',
+    bibPickupTime: '08:00 - 09:15 h',
   },
   {
     id: 'registration-2',
@@ -504,8 +506,11 @@ export const mockRegistrations: Registration[] = [
     startsAt: '2026-11-08T10:00:00+01:00',
     location: 'Monforte de Lemos, Lugo',
     participantName: 'Iria Varela',
+    bibNumber: 42,
     paidState: 'pending',
     total: 18,
     imageUrl: '/images/hero-running-galicia.png',
+    departureTime: '10:00 h',
+    bibPickupTime: '08:30 - 09:45 h',
   },
 ];

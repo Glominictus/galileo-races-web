@@ -81,6 +81,17 @@ export interface PortalAccount {
   lastName: string;
   dni: string;
   emailVerified: boolean;
+  phone?: string;
+  birthDate?: string;
+  club?: string;
+}
+
+export interface UpdateAccountInput {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  birthDate?: string;
+  club?: string;
 }
 
 export interface PortalSession {
@@ -100,6 +111,8 @@ export interface Registration {
   paidState: 'paid' | 'pending' | 'failed';
   total: number;
   imageUrl: string;
+  departureTime?: string;
+  bibPickupTime?: string;
 }
 
 export interface ParticipantInput {

@@ -1,0 +1,279 @@
+/* ==========================================================================
+   ESTRUCTURA GENERAL DE FORMULARIOS
+   ========================================================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-grid--three {
+  grid-template-columns: .7fr 1fr 1fr;
+}
+
+.form-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: .8rem 1rem;
+  border-radius: 10px;
+  margin: 0;
+  font-size: .85rem;
+  font-weight: 500;
+}
+
+.form-note {
+  font-size: .78rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.form-note code {
+  background: var(--paper);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.check-field input,
+.legal-check input {
+  accent-color: var(--ink);
+  width: 1rem;
+  height: 1rem;
+}
+
+.legal-check {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  font-size: .78rem;
+  color: var(--muted);
+  max-width: 38rem;
+}
+
+.legal-check input {
+  flex: 0 0 auto;
+}
+
+/* ==========================================================================
+   PANEL DE AUTENTICACIÓN (LOGIN / REGISTRO)
+   ========================================================================== */
+
+.auth-panel {
+  background: var(--white);
+  color: var(--ink);
+  padding: clamp(1.6rem, 4vw, 2.75rem);
+  border-radius: 16px;
+  border: 1px solid rgba(11, 18, 32, 0.08);
+  box-shadow: 0 24px 48px -12px rgba(11, 18, 32, 0.12);
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  background: var(--paper);
+  padding: 0.35rem;
+  border-radius: 10px;
+  margin-bottom: 1.75rem;
+}
+
+.auth-tabs button {
+  border: 0;
+  background: transparent;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-tabs button.active {
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(11, 18, 32, 0.08);
+}
+
+.auth-header {
+  margin-bottom: 1.5rem;
+}
+
+.auth-header h2 {
+  font-size: 1.65rem;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.03em;
+}
+
+.auth-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.auth-redirect-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: var(--ink);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.auth-redirect-banner p {
+  margin: 0;
+}
+
+.auth-panel form,
+.participant-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.auth-panel label,
+.participant-form label {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+}
+
+.auth-panel label > span,
+.auth-field__label-row > span,
+.participant-form label > span {
+  font-size: .73rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.auth-field__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-field__hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.auth-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-panel input {
+  width: 100%;
+  border: 1.5px solid rgba(11, 18, 32, 0.14);
+  background: var(--paper);
+  padding: 0.8rem 0.95rem;
+  outline: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: var(--ink);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-panel input[name="dni"] {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-right: 3.2rem;
+}
+
+.auth-panel input[name="password"] {
+  padding-right: 5rem;
+}
+
+.auth-panel input:focus {
+  background: var(--white);
+  border-color: var(--lime);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.auth-input-badge {
+  position: absolute;
+  right: 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 5px;
+  background: rgba(11, 18, 32, 0.08);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  right: 0.65rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.auth-password-toggle:hover {
+  color: var(--ink);
+  background: rgba(11, 18, 32, 0.06);
+}
+
+.auth-submit {
+  border-radius: 10px;
+  margin-top: 0.4rem;
+  padding: 0.95rem 1.25rem;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(11, 18, 32, 0.08);
+}
+
+/* ==========================================================================
+   FORMULARIO PARTICIPANTE (CHECKOUT)
+   ========================================================================== */
+
+.participant-form input,
+.participant-form select {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  padding: .75rem 0;
+  outline: none;
+  border-radius: 0;
+}
+
+.participant-form input:focus,
+.participant-form select:focus {
+  border-color: var(--ink);
+}
+
+/* ==========================================================================
+   ADAPTACIONES RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 800px) {
+  .form-grid,
+  .form-grid--three {
+    grid-template-columns: 1fr;
+  }
+}

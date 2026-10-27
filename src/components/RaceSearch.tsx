@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { RaceSummary } from '@/lib/race-portal/types';
+import { matchesQuery } from '@/lib/domain/races/filters';
 
 type RaceSearchProps = {
   races: RaceSummary[];
@@ -8,17 +9,11 @@ type RaceSearchProps = {
 export default function RaceSearch({ races }: RaceSearchProps) {
   const [query, setQuery] = useState('');
 
-  const results = races.filter((race) => {
-    const term = query.trim().toLocaleLowerCase('es');
-    if (!term) return false;
-
-    return (
-      (race.name ?? '').toLocaleLowerCase('es').includes(term) ||
-      (race.city ?? '').toLocaleLowerCase('es').includes(term) ||
-      (race.province ?? '').toLocaleLowerCase('es').includes(term) ||
-      (race.distanceLabel ?? '').toLocaleLowerCase('es').includes(term)
-    );
-  });
+  const results = useMemo(() => {
+    const term = query.trim();
+    if (!term) return [];
+    return races.filter((race) => matchesQuery(race, term));
+  }, [races, query]);
 
   return (
     <div className="header-search">

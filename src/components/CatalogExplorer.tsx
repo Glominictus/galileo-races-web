@@ -1,54 +1,14 @@
 import { useMemo, useState } from 'react';
 import type { RaceSummary, RaceType } from '@/lib/race-portal/types';
 import { formatMoney, formatShortDate, statusCopy } from '@/lib/format';
+import { parseDistances, matchesDistance } from '@/lib/domain/races/distances';
+import { matchesQuery, filterRaces } from '@/lib/domain/races/filters';
 
-
+export { parseDistances, matchesDistance, matchesQuery };
 
 interface Props {
   initialRaces: RaceSummary[];
   provinces: string[];
-}
-
-export function parseDistances(label: string): number[] {
-  const matches = label.match(/\d+(?:[.,]\d+)?/g);
-  return matches ? matches.map((val) => parseFloat(val.replace(',', '.'))) : [];
-}
-
-export function matchesDistance(raceDistanceLabel: string, selectedDistance: string): boolean {
-  if (!selectedDistance) return true;
-  const target = parseFloat(selectedDistance);
-  if (Number.isNaN(target)) return true;
-
-  const distances = parseDistances(raceDistanceLabel);
-  return distances.some((km) => {
-    if (target === 21) {
-      // Media maratón: 21 o 21.1 km
-      return km >= 21 && km <= 21.5;
-    }
-    if (target === 42) {
-      // Maratón: 42 o 42.2 km
-      return km >= 42 && km <= 42.5;
-    }
-    // Comparación numérica exacta para 5k, 10k, 15k, etc. (tolerancia 0.5 km)
-    return Math.abs(km - target) < 0.5;
-  });
-}
-
-export function matchesQuery(race: RaceSummary, term: string): boolean {
-  if (!term) return true;
-
-  const inTextFields = [race.name, race.city, race.province, race.distanceLabel].some((value) =>
-    (value ?? '').toLocaleLowerCase('es').includes(term)
-  );
-  if (inTextFields) return true;
-
-  // Si busca "10k", "21k", etc., comprobar la distancia numérica exacta
-  const kMatch = term.match(/^(\d+(?:[.,]\d+)?)\s*k$/);
-  if (kMatch) {
-    return matchesDistance(race.distanceLabel, kMatch[1]);
-  }
-
-  return false;
 }
 
 export default function CatalogExplorer({ initialRaces, provinces }: Props) {
@@ -59,17 +19,7 @@ export default function CatalogExplorer({ initialRaces, provinces }: Props) {
   const [distance, setDistance] = useState('');
 
   const races = useMemo(
-    () =>
-      initialRaces.filter((race) => {
-        const term = query.trim().toLocaleLowerCase('es');
-        return (
-          matchesQuery(race, term) &&
-          (!province || race.province === province) &&
-          (!type || race.type === type) &&
-          (!onlyOpen || race.status === 'open') &&
-          matchesDistance(race.distanceLabel, distance)
-        );
-      }),
+    () => filterRaces(initialRaces, { query, province, type, onlyOpen, distance }),
     [initialRaces, query, province, type, onlyOpen, distance]
   );
 

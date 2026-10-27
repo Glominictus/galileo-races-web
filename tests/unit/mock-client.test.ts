@@ -44,4 +44,16 @@ describe('MockRacePortalClient', () => {
       status: 401,
     });
   });
+
+  it('updates account personal data', async () => {
+    const client = new MockRacePortalClient();
+    const session = await client.login({ dni: '12345678z', password: 'password123' });
+    const updated = await client.updateAccount(
+      { phone: '654321987', birthDate: '1992-05-15', club: 'Galileo Runners' },
+      session.token
+    );
+    expect(updated.phone).toBe('654321987');
+    expect(updated.birthDate).toBe('1992-05-15');
+    expect(updated.club).toBe('Galileo Runners');
+  });
 });

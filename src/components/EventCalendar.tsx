@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { RaceSummary } from '@/lib/race-portal/types';
-import { formatMoney, statusCopy } from '@/lib/format';
+import { formatMonthName } from '@/lib/format';
 
 interface Props {
   races: RaceSummary[];
@@ -12,12 +12,6 @@ export default function EventCalendar({ races }: Props) {
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth(); // 0 - 11
-
-  // Nombres de meses y días
-  const monthNames = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
 
   // Cálculo de días del mes para pintar la cuadrícula
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -47,10 +41,9 @@ export default function EventCalendar({ races }: Props) {
 
   return (
     <div className="calendar-widget">
-
       <header className="calendar-header">
         <button onClick={prevMonth} className="calendar-nav-btn">←</button>
-        <h2>{monthNames[month]} <span>{year}</span></h2>
+        <h2>{formatMonthName(currentDate)} <span>{year}</span></h2>
         <button onClick={nextMonth} className="calendar-nav-btn">→</button>
       </header>
 
@@ -85,7 +78,7 @@ export default function EventCalendar({ races }: Props) {
                     key={race.id}
                     href={`/carreras/${race.slug}`}
                     className={`event-badge event-badge--${race.status}`}
-                    title={`${race.name} (${statusCopy[race.status]})`}
+                    title={`${race.name} (${race.city})`}
                   >
                     <span className="badge-dot"></span>
                     <span className="badge-name">{race.name}</span>

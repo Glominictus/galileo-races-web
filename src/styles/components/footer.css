@@ -1,0 +1,46 @@
+/* ==========================================================================
+   SITE FOOTER
+   ========================================================================== */
+
+.site-footer {
+  background: var(--ink);
+  color: var(--white);
+  padding: 5rem clamp(1.25rem, 5vw, 5rem) 2rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5rem 2rem;
+  align-items: start;
+}
+
+.site-footer .wordmark {
+  font-size: 3rem;
+}
+
+.site-footer p {
+  color: #9c9e96;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  text-align: right;
+}
+
+.site-footer small {
+  grid-column: 1/-1;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, .15);
+  color: #7d7f78;
+}
+
+@media (max-width: 800px) {
+  .site-footer {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .footer-links {
+    text-align: left;
+  }
+}

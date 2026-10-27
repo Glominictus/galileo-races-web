@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { parseDistances, matchesDistance, matchesQuery } from '../../src/components/CatalogExplorer';
+import { parseDistances, matchesDistance } from '../../src/lib/domain/races/distances';
+import { matchesQuery } from '../../src/lib/domain/races/filters';
 import type { RaceSummary } from '../../src/lib/race-portal/types';
 
 describe('Distance filter logic', () => {

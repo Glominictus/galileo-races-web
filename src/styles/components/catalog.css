@@ -1,0 +1,90 @@
+/* ==========================================================================
+   CATÁLOGO & FILTROS
+   ========================================================================== */
+
+.catalog-filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .35);
+}
+
+.catalog-filters label {
+  min-height: 5.4rem;
+  padding: 1rem 1.2rem;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  justify-content: center;
+}
+
+.catalog-filters label > span {
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: .63rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.catalog-filters input,
+.catalog-filters select {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  outline: none;
+  min-width: 0;
+}
+
+.search-field {
+  position: relative;
+}
+
+.search-field b {
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1.25rem;
+  font-size: 1.35rem;
+}
+
+.catalog-filters .check-field {
+  flex-direction: row;
+  align-items: center;
+  border-right: 0;
+  min-width: 9rem;
+}
+
+.catalog-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.2rem 0 1rem;
+}
+
+.catalog-summary strong {
+  font-family: 'Manrope';
+  font-size: 2.5rem;
+  margin-right: .4rem;
+}
+
+/* ==========================================================================
+   ADAPTACIONES MÓVIL (CATÁLOGO)
+   ========================================================================== */
+
+@media (max-width: 800px) {
+  .catalog-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .catalog-filters label {
+    min-height: 4.5rem;
+  }
+
+  .catalog-filters .search-field {
+    grid-column: 1/-1;
+  }
+
+  .catalog-filters .check-field {
+    border-top: 1px solid var(--line);
+  }
+}

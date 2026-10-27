@@ -3,6 +3,8 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getRacePortalClient } from "@/lib/race-portal/index.server";
 import { RacePortalError } from "@/lib/race-portal/client";
 import { formatDate, formatMoney, statusCopy } from "@/lib/format";
+import { buildRaceJsonLd } from "@/lib/domain/races/seo";
+
 const { slug } = Astro.params;
 let race;
 try {
@@ -12,50 +14,10 @@ try {
     return Astro.redirect("/404");
   throw error;
 }
+
 const hasOpen = race.modalities.some((item) => item.status === "open");
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SportsEvent",
-  name: race.name,
-  startDate: race.startsAt,
-  eventStatus: "https://schema.org/EventScheduled",
-  eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-  image: [
-    new URL(
-      race.imageUrl,
-      import.meta.env.PUBLIC_SITE_URL || Astro.url.origin,
-    ).toString(),
-  ],
-  location: {
-    "@type": "Place",
-    name: race.locationName,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: race.city,
-      addressRegion: race.province,
-      addressCountry: "ES",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: race.latitude,
-      longitude: race.longitude,
-    },
-  },
-  organizer: { "@type": "Organization", name: race.organizer.name },
-  offers: race.modalities.map((item) => ({
-    "@type": "Offer",
-    price: item.priceFrom,
-    priceCurrency: "EUR",
-    availability:
-      item.status === "open"
-        ? "https://schema.org/InStock"
-        : "https://schema.org/SoldOut",
-    url: new URL(
-      `/inscripcion/${race.slug}`,
-      import.meta.env.PUBLIC_SITE_URL || Astro.url.origin,
-    ).toString(),
-  })),
-};
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || Astro.url.origin;
+const jsonLd = buildRaceJsonLd(race, siteUrl);
 ---
 
 <BaseLayout

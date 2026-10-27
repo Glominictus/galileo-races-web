@@ -1,24 +1,18 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
-import { json, setSessionToken } from '@/lib/api-response';
+import { apiError, json, setSessionToken } from '@/lib/api-response';
 import { RacePortalError } from '@/lib/race-portal/client';
 import { getRacePortalClient } from '@/lib/race-portal/index.server';
-
-const dniRegex = /^([XYZ]\d{7}|\d{8})[A-Z]$/;
+import { documentSchema } from '@/lib/domain/auth/identity';
 
 const schema = z.object({
-  dni: z
-    .string()
-    .trim()
-    .transform((val) => val.toUpperCase().replace(/[\s-]/g, ''))
-    .refine((val) => dniRegex.test(val), 'Introduce un DNI o NIE con formato válido (ej. 12345678Z).'),
+  dni: documentSchema,
   password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres.'),
 });
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    const rawBody = await request.json();
-    const input = schema.parse(rawBody);
+    const input = schema.parse(await request.json());
 
     try {
       const session = await getRacePortalClient().login(input);
@@ -29,7 +23,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         return json({ message: clientError.message, code: clientError.code }, { status: clientError.status });
       }
 
-      //Demo
+      // Fallback para modo demo si no hay backend activo
       if (input.dni === '12345678Z') {
         const fallbackToken = `session_${Date.now()}`;
         const fallbackAccount = {
@@ -55,11 +49,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
   } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
-      const firstIssue = error.issues[0]?.message ?? 'Credenciales no válidas.';
-      return json({ message: firstIssue, code: 'INVALID_INPUT' }, { status: 400 });
-    }
-
-    return json({ message: 'Error en el servidor de autenticación', code: 'SERVER_ERROR' }, { status: 500 });
+    return apiError(error);
   }
 };

@@ -1,0 +1,303 @@
+/* ==========================================================================
+   PROCESO DE INSCRIPCIÓN / CHECKOUT
+   ========================================================================== */
+
+.checkout-shell {
+  min-height: calc(100vh - var(--header));
+  display: grid;
+  grid-template-columns: minmax(300px, 34%) 1fr;
+}
+
+.checkout-summary {
+  background: var(--ink);
+  color: var(--white);
+  padding: clamp(2rem, 5vw, 5rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.back-link {
+  color: #9c9f96;
+  font-size: .8rem;
+  margin-bottom: clamp(3rem, 8vh, 7rem);
+}
+
+.checkout-summary h1 {
+  font-size: clamp(2.4rem, 5vw, 4.7rem);
+  line-height: .94;
+  margin: .6rem 0 1rem;
+}
+
+.checkout-summary > p {
+  color: #a4a69e;
+}
+
+.checkout-steps {
+  padding: 0;
+  margin: auto 0 3rem;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.checkout-steps li {
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.checkout-step-button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: .9rem 0;
+  background: transparent;
+  border: none;
+  color: #6e706a;
+  font: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.checkout-steps li.active .checkout-step-button {
+  color: var(--white);
+  font-weight: 600;
+}
+
+.checkout-steps li.completed .checkout-step-button {
+  color: #b0b3ab;
+}
+
+.checkout-step-button:hover:not(:disabled) {
+  color: var(--white);
+}
+
+.checkout-step-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.checkout-step-button b {
+  color: var(--lime);
+  font-size: .7rem;
+}
+
+.checkout-note {
+  border-left: 2px solid var(--lime);
+  padding-left: 1rem;
+  color: #a4a69e;
+  font-size: .78rem;
+  max-width: 20rem;
+}
+
+.checkout-note strong {
+  color: var(--white);
+}
+
+.checkout-note p {
+  margin: .35rem 0 0;
+}
+
+.checkout-user-pill {
+  display: inline-flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 2rem;
+  align-self: flex-start;
+}
+
+.checkout-user-pill span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--lime);
+  letter-spacing: 0.05em;
+}
+
+.checkout-user-pill small {
+  color: var(--white);
+  font-size: 0.85rem;
+}
+
+.checkout-auth-badge {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #14532d;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  margin-bottom: 1.75rem;
+}
+
+.checkout-auth-prompt {
+  background: rgba(249, 115, 22, 0.09);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: var(--ink);
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  margin-bottom: 1.75rem;
+}
+
+.checkout-auth-prompt p {
+  margin: 0;
+}
+
+.checkout-auth-prompt a {
+  color: var(--lime);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.checkout-main {
+  padding: clamp(2rem, 7vw, 7rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 68rem;
+}
+
+.checkout-main h2 {
+  font-size: clamp(2.6rem, 6vw, 5.5rem);
+  line-height: .95;
+  margin: .7rem 0 1rem;
+}
+
+.section-lead {
+  color: var(--muted);
+  max-width: 35rem;
+  margin-bottom: 2.5rem;
+}
+
+.modality-list {
+  border-top: 1px solid var(--line);
+  margin-bottom: 2.2rem;
+}
+
+.modality-option {
+  display: grid;
+  grid-template-columns: auto 7rem 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.4rem 1rem;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.modality-option:hover,
+.modality-option.selected {
+  background: var(--white);
+}
+
+.modality-option.disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.modality-option input {
+  accent-color: var(--ink);
+}
+
+.modality-distance {
+  font: 700 2rem 'Manrope';
+}
+
+.modality-distance small {
+  font-size: .7rem;
+  margin-left: .2rem;
+}
+
+.modality-option > span:nth-child(3) {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.modality-option small {
+  color: var(--muted);
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.review-block {
+  border-top: 1px solid var(--line);
+  margin: 1rem 0 1.5rem;
+}
+
+.review-block > div {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 1rem;
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.review-block span {
+  color: var(--muted);
+}
+
+.review-total {
+  font-size: 2rem;
+}
+
+/* ==========================================================================
+   ADAPTACIONES RESPONSIVE (CHECKOUT)
+   ========================================================================== */
+
+@media (max-width: 800px) {
+  .checkout-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-summary {
+    min-height: auto;
+  }
+
+  .checkout-steps,
+  .checkout-note {
+    display: none;
+  }
+
+  .checkout-summary .back-link {
+    margin-bottom: 2rem;
+  }
+
+  .checkout-main {
+    padding: 3rem 1.2rem;
+  }
+
+  .modality-option {
+    grid-template-columns: auto 4rem 1fr;
+    gap: .8rem;
+  }
+
+  .modality-option > b {
+    grid-column: 3;
+  }
+
+  .modality-distance {
+    font-size: 1.4rem;
+  }
+
+  .review-block > div {
+    grid-template-columns: 1fr;
+    gap: .3rem;
+  }
+
+  .button-row {
+    gap: 1rem;
+  }
+
+  .button-row .button {
+    gap: .5rem;
+  }
+}
