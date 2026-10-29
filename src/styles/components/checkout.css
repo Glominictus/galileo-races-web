@@ -258,8 +258,23 @@
     grid-template-columns: 1fr;
   }
 
+  body.layout--mobile-app .checkout-shell {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
   .checkout-summary {
     min-height: auto;
+  }
+
+  body.layout--mobile-app .checkout-summary {
+    flex-shrink: 0;
+    padding: 0.65rem 1rem;
   }
 
   .checkout-steps,
@@ -271,8 +286,152 @@
     margin-bottom: 2rem;
   }
 
+  body.layout--mobile-app .checkout-summary .back-link {
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    display: inline-block;
+  }
+
+  body.layout--mobile-app .checkout-summary .kicker {
+    display: none;
+  }
+
+  body.layout--mobile-app .checkout-summary h1 {
+    font-size: 1.15rem;
+    line-height: 1.15;
+    margin: 0 0 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.layout--mobile-app .checkout-summary > p {
+    font-size: 0.72rem;
+    margin: 0;
+  }
+
+  body.layout--mobile-app .checkout-user-pill {
+    margin-top: 0.35rem;
+    margin-bottom: 0;
+    padding: 0.2rem 0.5rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  body.layout--mobile-app .checkout-user-pill span {
+    font-size: 0.65rem;
+  }
+
+  body.layout--mobile-app .checkout-user-pill small {
+    font-size: 0.75rem;
+  }
+
   .checkout-main {
     padding: 3rem 1.2rem;
+  }
+
+  body.layout--mobile-app .checkout-main {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1rem 1rem 1.5rem;
+    justify-content: flex-start;
+  }
+
+  body.layout--mobile-app .checkout-main h2 {
+    font-size: 1.5rem;
+    line-height: 1.1;
+    margin: 0.25rem 0 0.4rem;
+  }
+
+  body.layout--mobile-app .checkout-main .section-index {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  body.layout--mobile-app .checkout-main .section-lead {
+    font-size: 0.82rem;
+    margin-bottom: 1rem;
+    line-height: 1.35;
+  }
+
+  body.layout--mobile-app .modality-list {
+    margin-bottom: 1.25rem;
+  }
+
+  body.layout--mobile-app .modality-option {
+    padding: 0.8rem 0.6rem;
+  }
+
+  body.layout--mobile-app .checkout-auth-badge,
+  body.layout--mobile-app .checkout-auth-prompt {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.78rem;
+    margin-bottom: 1rem;
+  }
+
+  body.layout--mobile-app .participant-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.75rem;
+  }
+
+  body.layout--mobile-app .participant-form label {
+    margin-bottom: 0;
+  }
+
+  body.layout--mobile-app .participant-form input,
+  body.layout--mobile-app .participant-form select {
+    padding: 0.55rem 0;
+    font-size: 0.95rem;
+  }
+
+  body.layout--mobile-app .review-block {
+    margin: 0.5rem 0 1rem;
+  }
+
+  body.layout--mobile-app .review-block > div {
+    padding: 0.7rem 0;
+  }
+
+  body.layout--mobile-app .review-total {
+    font-size: 1.5rem;
+  }
+
+  body.layout--mobile-app .legal-check {
+    font-size: 0.78rem;
+    margin: 0.75rem 0 1.25rem;
+  }
+
+
+  body.layout--mobile-app .checkout-main > .button {
+    margin-top: 1.5rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0.85rem 1.25rem;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  body.layout--mobile-app .button-row {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  body.layout--mobile-app .button-row .button {
+    flex: 1;
+    justify-content: center;
+    padding: 0.85rem 1.25rem;
+    border-radius: 8px;
   }
 
   .modality-option {

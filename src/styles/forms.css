@@ -267,6 +267,88 @@
   border-color: var(--ink);
 }
 
+.participant-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.participant-grid label {
+  min-width: 0;
+}
+
+.participant-grid input,
+.participant-grid select {
+  min-width: 0;
+}
+
+.participant-grid--name {
+  grid-template-columns: 1fr 1.35fr;
+}
+
+.participant-grid--document {
+  grid-template-columns: 120px 1fr;
+}
+
+.participant-grid--contact {
+  grid-template-columns: 1fr 1fr;
+}
+
+.birthdate-field {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  min-width: 0;
+}
+
+.birthdate-label {
+  font-size: .73rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.birthdate-selects {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.35fr;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.birthdate-select {
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  background: transparent !important;
+  padding: .75rem 0.85rem .75rem 0.2rem !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  font-size: 0.92rem;
+  font-family: inherit;
+  color: var(--ink);
+  cursor: pointer;
+  min-width: 0;
+  text-align: center;
+  text-align-last: center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m1 1 4 4 4-4'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 2px center !important;
+  background-size: 7px 5px !important;
+  transition: border-color 0.15s ease;
+}
+
+.birthdate-select:focus {
+  border-color: var(--ink) !important;
+}
+
+.birthdate-select option {
+  background: var(--white);
+  color: var(--ink);
+  text-align: left;
+}
+
 /* ==========================================================================
    ADAPTACIONES RESPONSIVE
    ========================================================================== */
@@ -275,5 +357,32 @@
   .form-grid,
   .form-grid--three {
     grid-template-columns: 1fr;
+  }
+
+  .participant-grid {
+    gap: 0.85rem;
+  }
+
+  .participant-grid--name {
+    grid-template-columns: 1fr 1.35fr;
+  }
+
+  .participant-grid--document {
+    grid-template-columns: 100px 1fr;
+  }
+
+  .participant-grid--contact {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .birthdate-selects {
+    gap: 0.25rem;
+  }
+
+  .birthdate-select {
+    padding: 0.55rem 0.75rem 0.55rem 0.15rem !important;
+    font-size: 0.85rem;
+    background-position: right 1px center !important;
+    background-size: 6px 4px !important;
   }
 }

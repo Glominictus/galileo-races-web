@@ -1,0 +1,142 @@
+---
+import type { RaceSummary } from '@/lib/race-portal/types';
+import RaceSearch from '@/components/RaceSearch';
+import { RiMedalLine } from "react-icons/ri";
+import { MdOutlineAccountCircle } from "react-icons/md";
+import type { NavItem } from './HeaderDesktop.astro';
+
+interface Props {
+  items: RaceSummary[];
+  nav: NavItem[];
+  isLoggedIn: boolean;
+  accountLabel: string;
+  accountHref: string;
+}
+
+const { items, nav, isLoggedIn, accountLabel, accountHref } = Astro.props;
+---
+
+<header class="site-header site-header--mobile" id="site-header-mobile">
+  <div class="site-header__container">
+    <!-- Logo -->
+    <a class="wordmark" href="/" aria-label="PULSO, inicio">
+      PULSO<span>.</span>
+    </a>
+
+    <!-- Botón Menú Hamburguesa (Móvil) -->
+    <button
+      id="menu-toggle"
+      class="menu-toggle"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+    >
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+
+  <!-- Cortina Desplegable (Móvil) -->
+  <div id="site-nav-mobile" class="site-header__mobile-menu">
+    <div class="site-header__mobile-search">
+      <RaceSearch races={items} client:idle />
+    </div>
+    <nav aria-label="Navegación móvil">
+      {
+        nav.map((item) => (
+          <a class:list={[{ active: item.active }, 'nav-item-mobile']} href={item.href}>
+            <span class="nav-icon">
+              {item.isMedal ? <RiMedalLine /> : item.icon && <Fragment set:html={item.icon} />}
+            </span>
+            <span>{item.label}</span>
+          </a>
+        ))
+      }
+      <a class:list={['nav-account-mobile', { 'nav-account-mobile--logged-in': isLoggedIn }]} href={accountHref}>
+        <span class="nav-account-mobile__icon" aria-hidden="true">
+          <MdOutlineAccountCircle />
+        </span>
+        <span class="nav-account-mobile__label">{accountLabel}</span>
+        <span class="nav-account-mobile__chevron" aria-hidden="true">›</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Fondo oscuro con desenfoque (Backdrop) -->
+  <div id="menu-backdrop" class="site-header__backdrop" aria-hidden="true"></div>
+</header>
+
+<script>
+  function setupMenu() {
+    const toggleBtn = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('site-nav-mobile');
+    const backdrop = document.getElementById('menu-backdrop');
+
+    if (!toggleBtn || !mobileMenu) return;
+
+    const btn = toggleBtn;
+    const menu = mobileMenu;
+
+    document.body.style.overflow = '';
+
+    const openMenu = () => {
+      btn.setAttribute('aria-expanded', 'true');
+      btn.setAttribute('aria-label', 'Cerrar menú');
+      menu.classList.add('is-open');
+      backdrop?.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeMenu = () => {
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', 'Abrir menú');
+      menu.classList.remove('is-open');
+      backdrop?.classList.remove('is-open');
+      document.body.style.overflow = '';
+    };
+
+    const toggleMenu = () => {
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      if (isExpanded) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    };
+
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    };
+
+    if (backdrop) {
+      backdrop.onclick = () => closeMenu();
+    }
+
+    // Cerrar al pulsar cualquier enlace dentro del menú
+    menu.querySelectorAll('a').forEach((link) => {
+      link.onclick = () => closeMenu();
+    });
+
+    // Cerrar con la tecla Escape
+    if ((window as any)._mobileMenuKeyHandler) {
+      document.removeEventListener('keydown', (window as any)._mobileMenuKeyHandler);
+    }
+    (window as any)._mobileMenuKeyHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+        closeMenu();
+      }
+    };
+    document.addEventListener('keydown', (window as any)._mobileMenuKeyHandler);
+  }
+
+  document.addEventListener('astro:page-load', setupMenu);
+  setupMenu();
+</script>
+
+<style>
+  @media (min-width: 769px) {
+    .site-header--mobile {
+      display: none !important;
+    }
+  }
+</style>

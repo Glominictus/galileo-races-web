@@ -32,7 +32,8 @@ const { race, index = 1 } = Astro.props;
         >Desde {formatMoney(race.priceFrom)}</span>
     </div>
     <div class:list={["status", `status--${race.status}`]}>
-      <i>{statusCopy[race.status]}</i>
+      <i></i>
+      <span>{statusCopy[race.status]}</span>
     </div>
   </div>
   <a

@@ -1,0 +1,95 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer site-footer--mobile">
+  <div class="site-footer__mobile-bar">
+    <a class="wordmark" href="/" aria-label="PULSO, inicio">
+      PULSO<span>.</span>
+    </a>
+
+    <div class="site-footer__mobile-links">
+      <a href="mailto:hola@pulso.gal">Contacto</a>
+      <span class="site-footer__mobile-dot" aria-hidden="true">·</span>
+      <small>© {year} PULSO</small>
+    </div>
+  </div>
+</footer>
+
+<style>
+  @media (min-width: 769px) {
+    .site-footer--mobile {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .site-footer--mobile {
+      background: var(--ink, #0b1220);
+      color: var(--white, #ffffff);
+      padding: 0.4rem 1rem calc(0.4rem + env(safe-area-inset-bottom, 0px)) 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .site-footer__mobile-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      gap: 0.5rem;
+    }
+
+    .site-footer--mobile .wordmark {
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      line-height: 1;
+    }
+
+    .site-footer--mobile .wordmark span {
+      color: var(--lime, #f97316);
+    }
+
+    .site-footer__mobile-links {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.68rem;
+      color: #64748b;
+      line-height: 1;
+    }
+
+    .site-footer__mobile-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+
+    .site-footer__mobile-links a:hover,
+    .site-footer__mobile-links a:active {
+      color: var(--lime, #f97316);
+    }
+
+    .site-footer__mobile-dot {
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 0.6rem;
+    }
+
+    .site-footer__mobile-links small {
+      font-size: inherit;
+      color: inherit;
+    }
+
+    /* En páginas de modo app móvil (zero-scroll) */
+    :global(body.layout--mobile-app) .site-footer--mobile {
+      flex-shrink: 0 !important;
+      padding: 0.3rem 1rem calc(0.3rem + env(safe-area-inset-bottom, 0px)) 1rem !important;
+      z-index: 10;
+    }
+  }
+</style>

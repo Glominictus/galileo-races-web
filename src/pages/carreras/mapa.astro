@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import RaceMap from "@/components/RaceMap";
 import { getRacePortalClient } from "@/lib/race-portal/index.server";
+import 'leaflet/dist/leaflet.css';
 
 const { items } = await getRacePortalClient().listRaces();
 ---
@@ -9,16 +10,16 @@ const { items } = await getRacePortalClient().listRaces();
 <BaseLayout
   title="Mapa de Carreras — PULSO"
   description="Explora las salidas geolocalizadas por la geografía gallega."
+  noScrollMobile
 >
   <section class="page-heading">
     <div class="page-heading__content">
-      <span class="section-index">01 — Geolocalización</span>
+      <span class="section-index">Geolocalización</span>
       <h1>Explora las salidas<br /><em>en el mapa.</em></h1>
       <p>
         Encuentra pruebas según su ubicación exacta en Galicia y accede a sus inscripciones.
       </p>
     </div>
-
   </section>
 
   <section class="map-section">
@@ -42,7 +43,7 @@ const { items } = await getRacePortalClient().listRaces();
   }
 
   .page-heading .section-index {
-    color: var(--lime, #ccff00);
+    color: var(--lime, #f97316);
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.15em;
@@ -58,7 +59,7 @@ const { items } = await getRacePortalClient().listRaces();
 
   .page-heading h1 em {
     font-style: normal;
-    color: var(--lime, #ccff00);
+    color: var(--lime, #f97316);
   }
 
   .page-heading p {
@@ -66,52 +67,6 @@ const { items } = await getRacePortalClient().listRaces();
     color: #a9aba4;
     line-height: 1.6;
     font-size: 1.1rem;
-  }
-
-  .page-heading__image {
-    max-width: 280px;
-    opacity: 0.85;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.4s ease, opacity 0.4s ease;
-  }
-
-  .page-heading__image:hover {
-    opacity: 1;
-    transform: scale(1.03);
-  }
-
-  .page-heading__image img {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 0 15px rgba(204, 255, 0, 0.15));
-  }
-
-  .view-toggle {
-    display: inline-flex;
-    gap: 0.5rem;
-    margin-top: 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 0.25rem;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .toggle-btn {
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    color: #a9aba4;
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-
-  .toggle-btn.active, .toggle-btn:hover {
-    background: var(--lime, #ccff00);
-    color: var(--ink, #050707);
   }
 
   .map-section {
@@ -123,10 +78,84 @@ const { items } = await getRacePortalClient().listRaces();
       grid-template-columns: 1fr;
       gap: 2rem;
     }
+  }
 
-    .page-heading__image {
-      max-width: 180px;
-      margin: 0 auto;
+  /* ==========================================================================
+     MODO APP MÓVIL SIN SCROLL (<= 768px)
+     ========================================================================== */
+  @media (max-width: 768px) {
+    :global(body.layout--mobile-app) .page-heading {
+      padding: 0.65rem 1.25rem;
+      flex-shrink: 0;
+      display: block;
+      grid-template-columns: 1fr;
+      gap: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    :global(body.layout--mobile-app) .page-heading .section-index {
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+    }
+
+    :global(body.layout--mobile-app) .page-heading h1 {
+      font-size: 1.15rem;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin: 0.2rem 0 0;
+      font-weight: 800;
+    }
+
+    :global(body.layout--mobile-app) .page-heading h1 br {
+      display: none;
+    }
+
+    :global(body.layout--mobile-app) .page-heading h1 em {
+      margin-left: 0.25rem;
+    }
+
+    :global(body.layout--mobile-app) .page-heading p {
+      display: none;
+    }
+
+    :global(body.layout--mobile-app) .map-section {
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      flex: 1 1 0%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+    }
+
+    :global(body.layout--mobile-app) .map-section astro-island {
+      flex: 1 1 0%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+
+    :global(body.layout--mobile-app) .race-map-container {
+      flex: 1 1 0%;
+      min-height: 0;
+      height: 100%;
+      width: 100%;
+      border-radius: 0;
+      border: none;
+      position: relative;
+      isolation: isolate;
+      z-index: 1;
+    }
+
+    :global(body.layout--mobile-app) .race-map-container .leaflet-container {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      width: 100%;
     }
   }
 </style>

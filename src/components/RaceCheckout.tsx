@@ -1,20 +1,33 @@
 import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
 import { formatDate } from '@/lib/format';
 import type { PortalAccount, RaceDetail } from '@/lib/race-portal/types';
+import { useSessionStorage } from '@/lib/hooks/useSessionStorage';
 import type { CheckoutStep, ParticipantFormData } from './checkout/types';
 import StepModality from './checkout/StepModality';
 import StepParticipant from './checkout/StepParticipant';
 import StepReview from './checkout/StepReview';
 
+interface CheckoutDraft {
+  modalityId?: string;
+  participant?: Partial<ParticipantFormData>;
+}
+
 interface Props {
   race: RaceDetail;
   initialAccount?: PortalAccount | null;
+  initialModalityId?: string;
 }
 
-export default function RaceCheckout({ race, initialAccount }: Props) {
-  const [step, setStep] = useState<CheckoutStep>('modality');
+export default function RaceCheckout({ race, initialAccount, initialModalityId }: Props) {
+  const targetModality = initialModalityId
+    ? race.modalities.find((item) => item.id === initialModalityId && item.status === 'open')
+    : undefined;
+
+  const [draft, setDraft] = useSessionStorage<CheckoutDraft>(`checkout_${race.slug}`, {});
+
+  const [step, setStep] = useState<CheckoutStep>(() => (targetModality ? 'participant' : 'modality'));
   const [modalityId, setModalityId] = useState(
-    race.modalities.find((item) => item.status === 'open')?.id ?? race.modalities[0]?.id ?? ''
+    () => targetModality?.id ?? race.modalities.find((item) => item.status === 'open')?.id ?? race.modalities[0]?.id ?? ''
   );
   const [participant, setParticipant] = useState<ParticipantFormData>({
     firstName: initialAccount?.firstName ?? '',
@@ -47,14 +60,7 @@ export default function RaceCheckout({ race, initialAccount }: Props) {
   const canGoToReview = isModalityComplete && isParticipantComplete;
 
   function saveDraft(updatedModalityId = modalityId, updatedParticipant = participant) {
-    try {
-      sessionStorage.setItem(
-        `checkout_${race.slug}`,
-        JSON.stringify({ modalityId: updatedModalityId, participant: updatedParticipant })
-      );
-    } catch {
-      // Ignorar fallos de almacenamiento en navegación privada
-    }
+    setDraft({ modalityId: updatedModalityId, participant: updatedParticipant });
   }
 
   function goToStep(target: CheckoutStep) {
@@ -92,28 +98,33 @@ export default function RaceCheckout({ race, initialAccount }: Props) {
   }
 
   useEffect(() => {
-    try {
-      const saved = sessionStorage.getItem(`checkout_${race.slug}`);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.modalityId) setModalityId(parsed.modalityId);
-        if (parsed.participant) {
-          setParticipant((prev) => ({
-            ...prev,
-            ...parsed.participant,
-            firstName: initialAccount?.firstName || parsed.participant.firstName || '',
-            lastName: initialAccount?.lastName || parsed.participant.lastName || '',
-            document: initialAccount?.dni || parsed.participant.document || '',
-            birthDate: parsed.participant.birthDate || initialAccount?.birthDate || '',
-            phone: parsed.participant.phone || initialAccount?.phone || '',
-            club: parsed.participant.club || initialAccount?.club || '',
-          }));
-        }
-      }
-    } catch {
-      // Ignorar fallos de lectura de sessionStorage
+    const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const urlModalityParam = params?.get('modality') || initialModalityId;
+    const validUrlModality = urlModalityParam
+      ? race.modalities.find((m) => m.id === urlModalityParam && m.status === 'open')
+      : undefined;
+
+    if (validUrlModality) {
+      setModalityId(validUrlModality.id);
+      setStep('participant');
+      setDraft((prev) => ({ ...prev, modalityId: validUrlModality.id }));
+    } else if (draft.modalityId) {
+      setModalityId(draft.modalityId);
     }
-  }, [race.slug, initialAccount]);
+
+    if (draft.participant) {
+      setParticipant((prev) => ({
+        ...prev,
+        ...draft.participant,
+        firstName: initialAccount?.firstName || draft.participant?.firstName || '',
+        lastName: initialAccount?.lastName || draft.participant?.lastName || '',
+        document: initialAccount?.dni || draft.participant?.document || '',
+        birthDate: draft.participant?.birthDate || initialAccount?.birthDate || '',
+        phone: draft.participant?.phone || initialAccount?.phone || '',
+        club: draft.participant?.club || initialAccount?.club || '',
+      }));
+    }
+  }, [race.slug, race.modalities, initialModalityId, initialAccount]);
 
   async function handleFinishOrder() {
     if (!modality) return;

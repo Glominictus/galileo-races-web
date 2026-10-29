@@ -1,0 +1,67 @@
+---
+import type { RaceSummary } from '@/lib/race-portal/types';
+import RaceSearch from '@/components/RaceSearch';
+import { RiMedalLine } from "react-icons/ri";
+import { MdOutlineAccountCircle } from "react-icons/md";
+
+export interface NavItem {
+  href: string;
+  label: string;
+  icon?: string;
+  isMedal?: boolean;
+  active: boolean;
+}
+
+interface Props {
+  items: RaceSummary[];
+  nav: NavItem[];
+  isLoggedIn: boolean;
+  accountLabel: string;
+  accountHref: string;
+}
+
+const { items, nav, isLoggedIn, accountLabel, accountHref } = Astro.props;
+---
+
+<header class="site-header site-header--desktop" id="site-header-desktop">
+  <div class="site-header__container">
+    <!-- Logo -->
+    <a class="wordmark" href="/" aria-label="PULSO, inicio">
+      PULSO<span>.</span>
+    </a>
+
+    <!-- Buscador para escritorio -->
+    <div class="site-header__search-desktop">
+      <RaceSearch races={items} client:load />
+    </div>
+
+    <!-- Navegación para escritorio -->
+    <nav class="site-header__nav-desktop" aria-label="Navegación principal">
+      {
+        nav.map((item) => (
+          <a class:list={[{ active: item.active }, 'nav-item']} href={item.href}>
+            <span class="nav-icon">
+              {item.isMedal ? <RiMedalLine /> : item.icon && <Fragment set:html={item.icon} />}
+            </span>
+            <span>{item.label}</span>
+          </a>
+        ))
+      }
+      <a class:list={['nav-account', { 'nav-account--logged-in': isLoggedIn }]} href={accountHref}>
+        <span class="nav-account__icon" aria-hidden="true">
+          <MdOutlineAccountCircle />
+        </span>
+        <span class="nav-account__label">{accountLabel}</span>
+        {isLoggedIn && <span class="nav-account__chevron" aria-hidden="true">›</span>}
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  @media (max-width: 768px) {
+    .site-header--desktop {
+      display: none !important;
+    }
+  }
+</style>

@@ -145,7 +145,7 @@ export default function CatalogExplorer({ initialRaces, provinces }: Props) {
                 </div>
                 <div className={`status status--${race.status}`}>
                   <i />
-                  {statusCopy[race.status]}
+                  <span>{statusCopy[race.status]}</span>
                 </div>
               </div>
               <a

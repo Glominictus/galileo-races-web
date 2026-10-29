@@ -70,6 +70,15 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
         {
           race.modalities.map((item, index) => (
             <article class="modality-row">
+              {
+                item.status === 'open' && (
+                  <a
+                    class="modality-card-link"
+                    href={`/inscripcion/${race.slug}?modality=${item.id}`}
+                    aria-label={`Inscribirme en ${item.name}`}
+                  />
+                )
+              }
               <!-- Columna 1: Índice y Distancia en grande -->
               <div class="modality-distance">
                 <span class="modality-index">0{index + 1}</span>
@@ -97,9 +106,14 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
                 <b>{formatMoney(item.priceFrom)}</b>
                 {
                   item.status === 'open' && (
-                    <a class="button button--lime button--sm" href={`/inscripcion/${race.slug}`}>
-                      Inscribirme <span>→</span>
-                    </a>
+                    <>
+                      <a class="button button--lime button--sm" href={`/inscripcion/${race.slug}?modality=${item.id}`}>
+                        Inscribirme <span>→</span>
+                      </a>
+                      <span class="modality-mobile-cta" aria-hidden="true">
+                        Seleccionar <span>→</span>
+                      </span>
+                    </>
                   )
                 }
               </div>
@@ -146,6 +160,22 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
       )
     }
   </section>
+
+  {
+    hasOpen && (
+      <aside class="mobile-sticky-bar" aria-label="Inscripción directa">
+        <div class="mobile-sticky-bar__details">
+          <span class="mobile-sticky-bar__label">Inscripción oficial</span>
+          <span class="mobile-sticky-bar__price">
+            Desde <strong>{formatMoney(race.priceFrom)}</strong>
+          </span>
+        </div>
+        <a class="button button--lime mobile-sticky-bar__cta" href={`/inscripcion/${race.slug}`}>
+          Inscribirme <span>→</span>
+        </a>
+      </aside>
+    )
+  }
 </BaseLayout>
 <style>
   .race-hero {
@@ -213,10 +243,12 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
     background: #92958e;
   }
   .race-state.status--open i {
-    background: #5f9e39;
+    background: #22c55e;
+    animation: status-blink 1.5s ease-in-out infinite;
   }
   .race-state.status--sold-out i {
-    background: #ce513f;
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.35);
   }
   .race-intro {
     padding: clamp(6rem, 13vw, 12rem) clamp(1.25rem, 7vw, 7rem);
@@ -343,78 +375,285 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
   .race-cta .section-index {
     color: var(--lime);
   }
+  .modalities-scroll-container,
+  .modalities-list {
+    max-height: 520px; 
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+  .modality-row:last-child {
+    border-bottom: 1px solid var(--line, rgba(0, 0, 0, 0.1));
+  }
+  .modality-price {
+    font: 700 1.3rem "Manrope", sans-serif;
+    color: var(--ink, #0b1220);
+    white-space: nowrap;
+    text-align: right; 
+    padding-right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+  .button--sm {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.8rem;
+    gap: 0.5rem;
+    border-radius: 6px;
+  }
+  .race-hero__cta {
+    margin-top: 1.75rem;
+    display: inline-flex;
+  }
+  .modality-card-link,
+  .modality-mobile-cta {
+    display: none;
+  }
+  .mobile-sticky-bar {
+    display: none;
+  }
   @media (max-width: 800px) {
     .race-hero {
-      min-height: 650px;
+      min-height: 440px;
+      height: 62svh;
     }
     .race-hero h1 {
-      font-size: 4.3rem;
+      font-size: clamp(2.2rem, 8vw, 3.2rem);
+      line-height: 0.95;
+      margin: 0.5rem 0 0.75rem;
+    }
+    .race-hero__content {
+      left: 1.25rem;
+      right: 1.25rem;
+      bottom: 2rem;
+      max-width: 100%;
+    }
+    .race-hero__content p {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
     }
     .race-state {
       right: 1rem;
       top: 1rem;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.65rem;
+      border-radius: 20px;
+    }
+    .race-hero__cta {
+      display: none !important;
+    }
+
+    .race-intro {
+      padding: 2.75rem 1.25rem 2rem;
+    }
+    .race-intro > p {
+      font: 500 1.25rem/1.35 "Manrope", sans-serif;
+      letter-spacing: -0.02em;
+      margin: 0.75rem 0 1.75rem;
+      max-width: 100%;
     }
     .race-facts {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      border: none;
     }
     .race-facts > div {
-      border-right: 0;
-      border-bottom: 1px solid var(--line);
+      background: var(--white);
+      padding: 0.85rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      gap: 0.35rem;
     }
-    .race-modalities,
-    .race-detail {
+    .race-facts span {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+    }
+    .race-facts strong {
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .race-modalities {
+      padding: 2.75rem 1.25rem 2rem;
       grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .modalities-intro h2 {
+      font-size: 2rem;
+      line-height: 1;
+      margin: 0.5rem 0 1.25rem;
+    }
+    .modalities-scroll-container,
+    .modalities-list {
+      max-height: none !important;
+      overflow: visible !important;
+      padding-right: 0;
     }
     .race-modalities article {
-      grid-template-columns: 1.5rem 4rem 1fr;
+      display: grid !important;
+      grid-template-columns: 1fr auto !important;
+      gap: 0.6rem !important;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.15rem !important;
+      margin-bottom: 0.85rem;
     }
-    .race-modalities article > b {
-      grid-column: 3;
+    .modality-distance {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
     }
-    .race-modalities article > strong {
-      font-size: 1.7rem;
+    .modality-distance strong {
+      font: 700 2rem "Manrope", sans-serif;
+      color: var(--ink);
+    }
+    .modality-info {
+      grid-column: 1 / -1;
+    }
+    .modality-info h3 {
+      font-size: 1.05rem;
+      margin: 0.15rem 0 0.35rem;
+    }
+    .modality-info p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin: 0 0 0.45rem;
+    }
+    .modality-row {
+      position: relative;
+    }
+    .modality-card-link {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      border-radius: 14px;
+    }
+    .modality-price {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      border-top: 1px solid var(--line);
+      padding-top: 0.75rem;
+      margin-top: 0.35rem;
+      padding-right: 0 !important;
+    }
+    .modality-price b {
+      font-size: 1.35rem;
+      color: var(--ink);
+    }
+    .modality-price .button--sm {
+      display: none !important;
+    }
+    .modality-mobile-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--lime);
+    }
+
+    .race-detail {
+      padding: 2.75rem 1.25rem;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .race-detail h2 {
+      font-size: 2rem;
+      line-height: 1;
+      margin: 0.5rem 0 1.25rem;
+    }
+    .race-detail li {
+      grid-template-columns: 4.5rem 1fr;
+      padding: 0.85rem 0;
+    }
+    .race-detail time {
+      font-size: 1.15rem;
     }
     .included {
       grid-column: 1;
-    }
-    .race-cta {
-      display: block;
-    }
-    .race-cta .button {
-      margin-top: 2rem;
+      margin-top: 1rem;
     }
     .included ul {
       columns: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-top: 0.75rem;
+    }
+    .included li {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.88rem;
+      color: var(--ink);
+    }
+
+    .race-cta {
+      display: block;
+      padding: 3rem 1.25rem 5.5rem;
+    }
+    .race-cta h2 {
+      font-size: 2.2rem;
+      line-height: 1;
+    }
+    .race-cta .button {
+      display: none !important;
+    }
+
+    .mobile-sticky-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      display: flex !important;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.25rem calc(0.8rem + env(safe-area-inset-bottom, 0px)) 1.25rem;
+      background: rgba(11, 18, 32, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .mobile-sticky-bar__details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .mobile-sticky-bar__label {
+      font-size: 0.68rem;
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+    .mobile-sticky-bar__price {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .mobile-sticky-bar__price strong {
+      font-size: 1.25rem;
+      color: var(--white);
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+    }
+    .mobile-sticky-bar__cta {
+      padding: 0.65rem 1.25rem;
+      font-size: 0.9rem;
+      border-radius: 8px;
+    }
+
+    /* Espacio compensatorio para que la barra flotante no tape el footer en móvil */
+    :global(.site-footer--mobile) {
+      padding-bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px)) !important;
     }
   }
-.modalities-scroll-container,
-.modalities-list {
-  max-height: 520px; 
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-.modality-row:last-child {
-  border-bottom: 1px solid var(--line, rgba(0, 0, 0, 0.1));
-}
-.modality-price {
-  font: 700 1.3rem "Manrope", sans-serif;
-  color: var(--ink, #0b1220);
-  white-space: nowrap;
-  text-align: right; 
-  padding-right: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-.button--sm {
-  padding: 0.5rem 0.9rem;
-  font-size: 0.8rem;
-  gap: 0.5rem;
-  border-radius: 6px;
-}
-.race-hero__cta {
-  margin-top: 1.75rem;
-  display: inline-flex;
-}
 </style>

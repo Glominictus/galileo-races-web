@@ -28,6 +28,8 @@ if (sessionToken && !account) {
     console.warn('No se pudo cargar la cuenta para el checkout:', error);
   }
 }
+
+const initialModalityId = Astro.url.searchParams.get('modality') ?? undefined;
 ---
 
 <BaseLayout
@@ -35,6 +37,7 @@ if (sessionToken && !account) {
   description={`Inscripción oficial para ${race.name}`}
   image={race.imageUrl}
   noindex
+  noScrollMobile={true}
 >
-  <RaceCheckout race={race} initialAccount={account} client:load />
+  <RaceCheckout race={race} initialAccount={account} initialModalityId={initialModalityId} client:load />
 </BaseLayout>

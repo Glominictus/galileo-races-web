@@ -23,7 +23,7 @@
 }
 
 .calendar-header h2 span {
-  color: var(--lime, #ccff00);
+  color: var(--lime, #f97316);
 }
 
 .calendar-nav-btn {
@@ -39,7 +39,7 @@
 }
 
 .calendar-nav-btn:hover {
-  background: var(--lime, #ccff00);
+  background: var(--lime, #f97316);
   color: #050707;
 }
 

@@ -9,6 +9,7 @@ interface Props {
   image?: string;
   noindex?: boolean;
   jsonLd?: Record<string, unknown>;
+  noScrollMobile?: boolean;
 }
 
 const {
@@ -17,6 +18,7 @@ const {
   image = '/images/hero-running-galicia.png',
   noindex = false,
   jsonLd,
+  noScrollMobile = false,
 } = Astro.props;
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || Astro.url.origin;
 const canonical = new URL(Astro.url.pathname, siteUrl).toString();
@@ -27,7 +29,7 @@ const absoluteImage = new URL(image, siteUrl).toString();
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#0b0c0b" />
     <meta name="description" content={description} />
@@ -44,7 +46,7 @@ const absoluteImage = new URL(image, siteUrl).toString();
     <title>{title}</title>
     {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
-  <body>
+  <body class:list={[{ 'layout--mobile-app': noScrollMobile }]}>
     <a class="skip-link" href="#main">Saltar al contenido</a>
     <Header />
     <main id="main"><slot /></main>

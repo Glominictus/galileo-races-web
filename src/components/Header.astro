@@ -1,118 +1,67 @@
 ---
 import { getSessionToken, getStoredAccount } from '@/lib/api-response';
 import { getRacePortalClient } from '@/lib/race-portal/index.server';
-import RaceSearch from '@/components/RaceSearch';
+import HeaderDesktop from './header/HeaderDesktop.astro';
+import HeaderMobile from './header/HeaderMobile.astro';
 
 const { items } = await getRacePortalClient().listRaces();
 const path = Astro.url.pathname;
 const isLoggedIn = Boolean(getSessionToken(Astro.cookies));
 const storedAccount = getStoredAccount(Astro.cookies);
 const accountLabel = isLoggedIn
-  ? storedAccount?.firstName
-    ? `Mi cuenta (${storedAccount.firstName})`
-    : 'Mi cuenta'
+  ? (storedAccount?.firstName || 'Mi cuenta')
   : 'Entrar';
 const accountHref = isLoggedIn ? '/cuenta' : '/acceso';
 const runIcon = `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9 1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 6.1 1.2z"/></svg>`;
 
-const nav = [
+const rawNav = [
   { 
     href: '/carreras', 
     label: 'Carreras',
-    icon: runIcon
+    icon: runIcon,
+    isMedal: false
   },
   { 
     href: '/carreras/calendario', 
     label: 'Calendario',
-    icon: `<svg viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="32"><rect x="48" y="80" width="416" height="384" rx="48" ry="48"/><line x1="128" y1="48" x2="128" y2="80" stroke-linecap="round"/><line x1="384" y1="48" x2="384" y2="80" stroke-linecap="round"/><line x1="48" y1="160" x2="464" y2="160"/></svg>`
+    icon: `<svg viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="32"><rect x="48" y="80" width="416" height="384" rx="48" ry="48"/><line x1="128" y1="48" x2="128" y2="80" stroke-linecap="round"/><line x1="384" y1="48" x2="384" y2="80" stroke-linecap="round"/><line x1="48" y1="160" x2="464" y2="160"/></svg>`,
+    isMedal: false
   },
   { 
     href: '/carreras/mapa', 
     label: 'Mapa',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+    isMedal: false
   },
   { 
     href: '/mis-carreras', 
     label: 'Mis carreras',
-    icon: runIcon 
+    isMedal: true
   },
 ];
+
+function isNavActive(itemHref: string) {
+  if (!path.startsWith(itemHref)) return false;
+  return !rawNav.some((other) => other.href !== itemHref && other.href.length > itemHref.length && path.startsWith(other.href));
+}
+
+const nav = rawNav.map((item) => ({
+  ...item,
+  active: isNavActive(item.href),
+}));
 ---
 
-<header class="site-header">
-  <div class="site-header__container">
-    <!-- Logo -->
-    <a class="wordmark" href="/" aria-label="PULSO, inicio">
-      PULSO<span>.</span>
-    </a>
-
-    <!-- Buscador para escritorio -->
-    <div class="site-header__search-desktop">
-      <RaceSearch races={items} client:load />
-    </div>
-
-    <!-- Navegación para escritorio -->
-    <nav class="site-header__nav-desktop" aria-label="Navegación principal">
-      {
-        nav.map((item) => (
-          <a class:list={[{ active: path.startsWith(item.href) }, 'nav-item']} href={item.href}>
-            {item.icon && <span class="nav-icon" set:html={item.icon} />}
-            <span>{item.label}</span>
-          </a>
-        ))
-      }
-      <a class="nav-account" href={accountHref}>
-        {accountLabel} <span aria-hidden="true">↗</span>
-      </a>
-    </nav>
-
-    <!-- Botón Menú Hamburguesa (Móvil) -->
-    <button
-      id="menu-toggle"
-      class="menu-toggle"
-      aria-label="Abrir menú"
-      aria-expanded="false"
-    >
-      <span class="hamburger-line"></span>
-      <span class="hamburger-line"></span>
-    </button>
-  </div>
-
-  <!-- Cortina Desplegable (Móvil) -->
-  <div id="site-nav-mobile" class="site-header__mobile-menu">
-    <div class="site-header__mobile-search">
-      <RaceSearch races={items} client:load />
-    </div>
-    <nav aria-label="Navegación móvil">
-      {
-        nav.map((item) => (
-          <a class:list={[{ active: path.startsWith(item.href) }, 'nav-item-mobile']} href={item.href}>
-            {item.icon && <span class="nav-icon" set:html={item.icon} />}
-            <span>{item.label}</span>
-          </a>
-        ))
-      }
-      <a class="nav-account-mobile" href={accountHref}>
-        {accountLabel} <span aria-hidden="true">↗</span>
-      </a>
-    </nav>
-  </div>
-</header>
-
-<script>
-  function setupMenu() {
-    const toggleBtn = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('site-nav-mobile');
-
-    if (!toggleBtn || !mobileMenu) return;
-
-    toggleBtn.addEventListener('click', () => {
-      const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
-      toggleBtn.setAttribute('aria-expanded', (!isExpanded).toString());
-      mobileMenu.classList.toggle('is-open');
-    });
-  }
-
-  document.addEventListener('astro:page-load', setupMenu);
-  setupMenu();
-</script>
+<HeaderDesktop
+  items={items}
+  nav={nav}
+  isLoggedIn={isLoggedIn}
+  accountLabel={accountLabel}
+  accountHref={accountHref}
+/>
+<HeaderMobile
+  items={items}
+  nav={nav}
+  isLoggedIn={isLoggedIn}
+  accountLabel={accountLabel}
+  accountHref={accountHref}
+/>
