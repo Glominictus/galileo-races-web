@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { PortalAccount } from '@/lib/race-portal/types';
 import { formatBirthDate } from '@/lib/format';
+import BirthdatePicker from '@/components/common/BirthdatePicker';
 
 interface AccountPanelProps {
   account: PortalAccount;
@@ -14,6 +15,7 @@ export default function AccountPanel({ account }: AccountPanelProps) {
     phone: account?.phone ?? '',
     birthDate: account?.birthDate ?? '',
     club: account?.club ?? '',
+    country: account?.country ?? 'España',
   });
   const [saving, setSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -72,7 +74,7 @@ export default function AccountPanel({ account }: AccountPanelProps) {
         <div>
           <span className="kicker">Identidad verificada · {account.dni}</span>
           <h2>
-            {account.firstName} {account.lastName}
+            {account.fullName || `${account.firstName} ${account.lastName}`}
           </h2>
           <p>{account.email}</p>
         </div>
@@ -101,12 +103,19 @@ export default function AccountPanel({ account }: AccountPanelProps) {
 
         <div className="account-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem 0', borderBottom: '1px solid var(--line)' }}>
           <span className="label" style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Nombre completo</span>
-          <strong>{account.firstName} {account.lastName}</strong>
+          <strong>{account.fullName || `${account.firstName} ${account.lastName}`}</strong>
         </div>
 
         <div className="account-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem 0', borderBottom: '1px solid var(--line)' }}>
           <span className="label" style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Correo electrónico</span>
           <strong>{account.email}</strong>
+        </div>
+
+        <div className="account-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem 0' }}>
+          <span className="label" style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Privacidad y condiciones</span>
+          <strong style={{ color: account.acceptedTermsAt ? '#16a34a' : 'inherit' }}>
+            {account.acceptedTermsAt ? '✓ Aceptados' : 'Pendientes'}
+          </strong>
         </div>
       </div>
 
@@ -131,6 +140,7 @@ export default function AccountPanel({ account }: AccountPanelProps) {
                     phone: currentAccount.phone ?? '',
                     birthDate: currentAccount.birthDate ?? '',
                     club: currentAccount.club ?? '',
+                    country: currentAccount.country ?? 'España',
                   });
                   setIsEditing(false);
                 }}
@@ -169,12 +179,10 @@ export default function AccountPanel({ account }: AccountPanelProps) {
         <div className="account-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: '1px solid var(--line)' }}>
           <span className="label" style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Fecha de nacimiento</span>
           {isEditing ? (
-            <input
-              type="date"
-              name="birthDate"
+            <BirthdatePicker
               value={runnerData.birthDate}
-              onChange={(e) => setRunnerData((prev) => ({ ...prev, birthDate: e.target.value }))}
-              className="account-row-input"
+              onChange={(newDate) => setRunnerData((prev) => ({ ...prev, birthDate: newDate }))}
+              className="account-birthdate-picker"
             />
           ) : (
             <strong>{formatBirthDate(currentAccount.birthDate)}</strong>
@@ -194,6 +202,22 @@ export default function AccountPanel({ account }: AccountPanelProps) {
             />
           ) : (
             <strong>{currentAccount.club || 'No registrado'}</strong>
+          )}
+        </div>
+
+        <div className="account-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0' }}>
+          <span className="label" style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>País de residencia</span>
+          {isEditing ? (
+            <input
+              type="text"
+              name="country"
+              value={runnerData.country}
+              onChange={(e) => setRunnerData((prev) => ({ ...prev, country: e.target.value }))}
+              placeholder="Ej: España"
+              className="account-row-input"
+            />
+          ) : (
+            <strong>{currentAccount.country || 'España'}</strong>
           )}
         </div>
 

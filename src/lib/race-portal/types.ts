@@ -74,16 +74,24 @@ export interface RaceAvailability {
   checkedAt: string;
 }
 
+export type Gender = 'femenino' | 'masculino' | 'otro';
+export type DocumentType = 'dni' | 'nie';
+
 export interface PortalAccount {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
+  fullName?: string;
   dni: string;
+  dniType?: DocumentType;
   emailVerified: boolean;
   phone?: string;
   birthDate?: string;
   club?: string;
+  gender?: Gender;
+  country?: string;
+  acceptedTermsAt?: string;
 }
 
 export interface UpdateAccountInput {
@@ -92,6 +100,9 @@ export interface UpdateAccountInput {
   phone?: string;
   birthDate?: string;
   club?: string;
+  gender?: Gender;
+  dniType?: DocumentType;
+  country?: string;
 }
 
 export interface PortalSession {
@@ -118,7 +129,7 @@ export interface Registration {
 export interface ParticipantInput {
   firstName: string;
   lastName: string;
-  documentType: 'dni' | 'nie' | 'passport';
+  documentType: DocumentType;
   document: string;
   birthDate: string;
   phone: string;
@@ -148,4 +159,12 @@ export interface RegisterInput extends LoginInput {
   firstName: string;
   lastName: string;
   email: string;
+  confirmEmail: string;
+  confirmPassword: string;
+  phone: string;
+  birthDate: string;
+  gender?: Gender;
+  dniType?: DocumentType;
+  country?: string;
+  acceptedTerms?: boolean;
 }

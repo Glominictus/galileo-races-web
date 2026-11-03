@@ -7,7 +7,10 @@ import { documentSchema } from '@/lib/domain/auth/identity';
 
 const schema = z.object({
   dni: documentSchema,
-  password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres.'),
+  password: z
+    .string()
+    .min(8, 'La contraseña debe tener al menos 8 caracteres.')
+    .max(100, 'La contraseña no puede superar los 100 caracteres.'),
 });
 
 export const POST: APIRoute = async ({ request, cookies }) => {
@@ -29,10 +32,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         const fallbackAccount = {
           id: 'account-demo',
           dni: '12345678Z',
+          dniType: 'dni' as const,
           email: 'corredora@pulso.gal',
           firstName: 'Iria',
           lastName: 'Varela',
+          fullName: 'Iria Varela',
           emailVerified: true,
+          phone: '+34 600 000 000',
+          birthDate: '1992-04-12',
+          country: 'España',
+          acceptedTermsAt: '2026-01-01T10:00:00.000Z',
         };
 
         setSessionToken(cookies, fallbackToken, fallbackAccount);

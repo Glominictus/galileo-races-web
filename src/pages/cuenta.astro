@@ -26,9 +26,12 @@ if (!account && !sessionToken) {
 const userAccount = storedAccount || account || {
   id: 'account-active',
   dni: '12345678Z',
+  dniType: 'dni' as const,
   email: 'corredora@pulso.gal',
   firstName: 'Iria',
   lastName: 'Varela',
+  fullName: 'Iria Varela',
+  country: 'España',
   emailVerified: true,
 };
 ---

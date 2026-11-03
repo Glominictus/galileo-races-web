@@ -99,6 +99,20 @@
   font-weight: 400;
 }
 
+.account-birthdate-picker {
+  max-width: 16rem;
+  width: 100%;
+}
+
+.account-birthdate-picker .birthdate-selects {
+  width: 100%;
+}
+
+.account-birthdate-picker .birthdate-select {
+  padding: 0.35rem 0.65rem 0.35rem 0.2rem !important;
+  font-size: 0.9rem;
+}
+
 /* ==========================================================================
    ADAPTACIONES MÓVIL (CUENTA)
    ========================================================================== */
@@ -112,5 +126,17 @@
   .account-profile .text-link {
     width: 100%;
     margin-left: 6.5rem;
+  }
+
+  .account-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.4rem;
+  }
+
+  .account-row-input,
+  .account-birthdate-picker {
+    max-width: 100% !important;
+    text-align: left;
   }
 }

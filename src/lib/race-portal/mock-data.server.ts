@@ -478,8 +478,12 @@ export const mockAccount: PortalAccount = {
   email: 'corredora@pulso.gal',
   firstName: 'Iria',
   lastName: 'Varela',
+  fullName: 'Iria Varela',
   dni: '12345678Z',
+  dniType: 'dni',
+  country: 'España',
   emailVerified: true,
+  acceptedTermsAt: '2026-01-01T10:00:00.000Z',
 };
 
 export const mockRegistrations: Registration[] = [

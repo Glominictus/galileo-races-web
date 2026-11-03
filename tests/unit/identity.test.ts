@@ -7,11 +7,17 @@ describe('Auth Identity Domain', () => {
     expect(normalizeDocument('x-1234567-a')).toBe('X1234567A');
   });
 
-  it('validates correct DNI and NIE formats', () => {
+  it('validates correct DNI and NIE with official control letter', () => {
     expect(isValidDniOrNie('12345678Z')).toBe(true);
     expect(isValidDniOrNie('X1234567L')).toBe(true);
-    expect(isValidDniOrNie('Y1234567B')).toBe(true);
-    expect(isValidDniOrNie('Z1234567T')).toBe(true);
+    expect(isValidDniOrNie('Y1234567X')).toBe(true);
+    expect(isValidDniOrNie('Z1234567R')).toBe(true);
+  });
+
+  it('rejects documents with incorrect control letter', () => {
+    expect(isValidDniOrNie('12345678A')).toBe(false);
+    expect(isValidDniOrNie('12345678B')).toBe(false);
+    expect(isValidDniOrNie('X1234567A')).toBe(false);
   });
 
   it('rejects invalid documents', () => {

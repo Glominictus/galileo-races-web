@@ -9,7 +9,7 @@ const schema = z.object({
   participant: z.object({
     firstName: z.string().trim().min(2),
     lastName: z.string().trim().min(2),
-    documentType: z.enum(['dni', 'nie', 'passport']),
+    documentType: z.enum(['dni', 'nie']),
     document: z.string().trim().min(3),
     birthDate: z.iso.date(),
     phone: z.string().trim().min(6),

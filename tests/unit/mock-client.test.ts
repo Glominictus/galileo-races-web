@@ -39,6 +39,7 @@ describe('MockRacePortalClient', () => {
     const client = new MockRacePortalClient();
     const session = await client.login({ dni: '12345678z', password: 'password123' });
     expect(session.account.dni).toBe('12345678Z');
+    expect(session.account.fullName).toBe('Iria Varela');
     await expect(client.login({ dni: 'invalid', password: 'password123' })).rejects.toMatchObject({
       code: 'INVALID_CREDENTIALS',
       status: 401,
@@ -49,11 +50,12 @@ describe('MockRacePortalClient', () => {
     const client = new MockRacePortalClient();
     const session = await client.login({ dni: '12345678z', password: 'password123' });
     const updated = await client.updateAccount(
-      { phone: '654321987', birthDate: '1992-05-15', club: 'Galileo Runners' },
+      { phone: '654321987', birthDate: '1992-05-15', club: 'Galileo Runners', firstName: 'Ana', lastName: 'Gómez' },
       session.token
     );
     expect(updated.phone).toBe('654321987');
     expect(updated.birthDate).toBe('1992-05-15');
     expect(updated.club).toBe('Galileo Runners');
+    expect(updated.fullName).toBe('Ana Gómez');
   });
 });

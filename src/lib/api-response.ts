@@ -50,8 +50,10 @@ export function apiError(error: unknown) {
   }
 
   if (error instanceof z.ZodError) {
-    const firstMessage = error.issues[0]?.message ?? 'Datos introducidos no válidos';
-    return new Response(JSON.stringify({ message: firstMessage, code: 'INVALID_INPUT' }), {
+    const firstIssue = error.issues[0];
+    const firstMessage = firstIssue?.message ?? 'Datos introducidos no válidos';
+    const field = firstIssue?.path?.[0] ? String(firstIssue.path[0]) : undefined;
+    return new Response(JSON.stringify({ message: firstMessage, code: 'INVALID_INPUT', field }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });

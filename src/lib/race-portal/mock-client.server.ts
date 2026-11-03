@@ -2,7 +2,7 @@ import type { RacePortalClient } from './client';
 import { RacePortalError } from './client';
 import { mockAccount, mockRaces, mockRegistrations } from './mock-data.server';
 import type { CreateRaceOrderInput, LoginInput, PortalAccount, RaceFilters, RegisterInput, Registration, UpdateAccountInput } from './types';
-import { isValidDniOrNie, normalizeDocument } from '@/lib/domain/auth/identity';
+import { detectDocumentType, isValidDniOrNie, normalizeDocument } from '@/lib/domain/auth/identity';
 
 const ordersByKey = new Map<string, { orderId: string; total: number; paymentUrl: string }>();
 const accountsByDni = new Map<string, PortalAccount>([[mockAccount.dni.toUpperCase(), mockAccount]]);
@@ -53,12 +53,21 @@ export class MockRacePortalClient implements RacePortalClient {
     if (!isValidDniOrNie(normalizedDni) || !input.email.includes('@') || input.password.length < 8) {
       throw new RacePortalError('Revisa los datos del registro y asegúrate de que la contraseña tenga al menos 8 caracteres', 'INVALID_REGISTRATION', 400);
     }
+    const firstName = input.firstName.trim();
+    const lastName = input.lastName.trim();
     const account: PortalAccount = {
       id: `account-${Date.now()}`,
       dni: normalizedDni,
+      dniType: input.dniType ?? detectDocumentType(normalizedDni),
       email: input.email.trim(),
-      firstName: input.firstName.trim(),
-      lastName: input.lastName.trim(),
+      firstName,
+      lastName,
+      fullName: `${firstName} ${lastName}`.trim(),
+      phone: input.phone,
+      birthDate: input.birthDate,
+      gender: input.gender,
+      country: input.country?.trim() || 'España',
+      acceptedTermsAt: new Date().toISOString(),
       emailVerified: true,
     };
     accountsByDni.set(normalizedDni, account);
@@ -75,13 +84,19 @@ export class MockRacePortalClient implements RacePortalClient {
   async updateAccount(input: UpdateAccountInput, token: string) {
     this.assertToken(token);
     const current = sessionsByToken.get(token) ?? { ...mockAccount };
+    const nextFirst = input.firstName ? input.firstName.trim() : current.firstName;
+    const nextLast = input.lastName ? input.lastName.trim() : current.lastName;
     const updated: PortalAccount = {
       ...current,
-      ...(input.firstName ? { firstName: input.firstName.trim() } : {}),
-      ...(input.lastName ? { lastName: input.lastName.trim() } : {}),
+      ...(input.firstName ? { firstName: nextFirst } : {}),
+      ...(input.lastName ? { lastName: nextLast } : {}),
+      fullName: `${nextFirst} ${nextLast}`.trim(),
       ...(input.phone !== undefined ? { phone: input.phone.trim() } : {}),
       ...(input.birthDate !== undefined ? { birthDate: input.birthDate.trim() } : {}),
       ...(input.club !== undefined ? { club: input.club.trim() } : {}),
+      ...(input.gender !== undefined ? { gender: input.gender } : {}),
+      ...(input.dniType !== undefined ? { dniType: input.dniType } : {}),
+      ...(input.country !== undefined ? { country: input.country.trim() } : {}),
     };
     sessionsByToken.set(token, updated);
     accountsByDni.set(updated.dni.toUpperCase(), updated);

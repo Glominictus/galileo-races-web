@@ -14,11 +14,12 @@ export const GET: APIRoute = async ({ cookies }) => {
 };
 
 const updateSchema = z.object({
-  firstName: z.string().trim().min(2).optional(),
-  lastName: z.string().trim().min(2).optional(),
-  phone: z.string().trim().optional(),
+  firstName: z.string().trim().min(2).max(255).optional(),
+  lastName: z.string().trim().min(2).max(255).optional(),
+  phone: z.string().trim().max(50).optional(),
   birthDate: z.string().trim().optional(),
-  club: z.string().trim().optional(),
+  club: z.string().trim().max(100).optional(),
+  country: z.string().trim().max(100).optional(),
 });
 
 export const PATCH: APIRoute = async ({ request, cookies }) => {

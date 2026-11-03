@@ -3,7 +3,7 @@ export type CheckoutStep = 'modality' | 'participant' | 'review';
 export interface ParticipantFormData {
   firstName: string;
   lastName: string;
-  documentType: 'dni' | 'nie' | 'passport';
+  documentType: 'dni' | 'nie';
   document: string;
   birthDate: string;
   phone: string;

@@ -32,7 +32,7 @@ export default function RaceCheckout({ race, initialAccount, initialModalityId }
   const [participant, setParticipant] = useState<ParticipantFormData>({
     firstName: initialAccount?.firstName ?? '',
     lastName: initialAccount?.lastName ?? '',
-    documentType: initialAccount?.dni && /^[XYZ]/i.test(initialAccount.dni) ? 'nie' : 'dni',
+    documentType: initialAccount?.dniType ?? (initialAccount?.dni && /^[XYZ]/i.test(initialAccount.dni) ? 'nie' : 'dni'),
     document: initialAccount?.dni ?? '',
     birthDate: initialAccount?.birthDate ?? '',
     phone: initialAccount?.phone ?? '',
@@ -176,7 +176,7 @@ export default function RaceCheckout({ race, initialAccount, initialModalityId }
         {initialAccount && (
           <div className="checkout-user-pill">
             <span>DNI: {initialAccount.dni}</span>
-            <small>{initialAccount.firstName} {initialAccount.lastName}</small>
+            <small>{initialAccount.fullName || `${initialAccount.firstName} ${initialAccount.lastName}`}</small>
           </div>
         )}
 
