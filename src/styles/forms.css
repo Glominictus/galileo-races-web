@@ -205,7 +205,7 @@
 .auth-panel input:not([type="checkbox"]):focus,
 .auth-panel select:focus {
   background: var(--white);
-  border-color: var(--lime);
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
@@ -270,7 +270,7 @@
 .participant-form .legal-check input[type="checkbox"] {
   appearance: auto;
   -webkit-appearance: auto;
-  accent-color: var(--lime);
+  accent-color: var(--accent);
   width: 1.15rem !important;
   height: 1.15rem !important;
   min-width: 1.15rem !important;

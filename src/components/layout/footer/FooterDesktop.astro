@@ -1,4 +1,5 @@
 ---
+const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer site-footer--desktop">
@@ -11,13 +12,5 @@
     <a href="/cuenta">Cuenta</a>
     <a href="mailto:hola@pulso.gal">Contacto</a>
   </div>
-  <small>© 2026 PULSO · Impulsado por Galileo</small>
+  <small>© {year} PULSO · Impulsado por Galileo</small>
 </footer>
-
-<style>
-  @media (max-width: 768px) {
-    .site-footer--desktop {
-      display: none !important;
-    }
-  }
-</style>

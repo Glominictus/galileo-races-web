@@ -1,10 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { RaceSummary, RaceType } from '@/lib/race-portal/types';
-import { formatMoney, formatShortDate, statusCopy } from '@/lib/format';
-import { parseDistances, matchesDistance } from '@/lib/domain/races/distances';
-import { matchesQuery, filterRaces } from '@/lib/domain/races/filters';
-
-export { parseDistances, matchesDistance, matchesQuery };
+import { filterRaces } from '@/lib/domain/races/filters';
+import RaceRow from './RaceRow';
 
 interface Props {
   initialRaces: RaceSummary[];
@@ -17,6 +14,22 @@ export default function CatalogExplorer({ initialRaces, provinces }: Props) {
   const [type, setType] = useState<RaceType | ''>('');
   const [onlyOpen, setOnlyOpen] = useState(false);
   const [distance, setDistance] = useState('');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const qParam = params.get('query');
+    const pParam = params.get('province');
+    const tParam = params.get('type') as RaceType | null;
+    const dParam = params.get('distance');
+    const openParam = params.get('onlyOpen');
+
+    if (qParam) setQuery(qParam);
+    if (pParam) setProvince(pParam);
+    if (tParam) setType(tParam);
+    if (dParam) setDistance(dParam);
+    if (openParam === 'true') setOnlyOpen(true);
+  }, []);
 
   const races = useMemo(
     () => filterRaces(initialRaces, { query, province, type, onlyOpen, distance }),
@@ -72,8 +85,8 @@ export default function CatalogExplorer({ initialRaces, provinces }: Props) {
             <option value="andaina">Andaina</option>
           </select>
         </label>
-        
-        <label> 
+
+        <label>
           <span>Distancia</span>
           <select value={distance} onChange={(event) => setDistance(event.target.value)}>
             <option value="">Todas</option>
@@ -118,44 +131,7 @@ export default function CatalogExplorer({ initialRaces, provinces }: Props) {
       ) : (
         <div className="race-list">
           {races.map((race, index) => (
-            <article className="race-row" key={race.id}>
-              <a
-                className="race-row__image"
-                href={`/carreras/${race.slug}`}
-                aria-label={`Ver ${race.name}`}
-              >
-                <img src={race.imageUrl} alt="" />
-                <span className="race-row__number">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-              </a>
-              <div className="race-row__content">
-                <div className="race-row__eyebrow">
-                  <span>{formatShortDate(race.startsAt)}</span>
-                  <span>
-                    {race.city} · {race.province}
-                  </span>
-                </div>
-                <h3>
-                  <a href={`/carreras/${race.slug}`}>{race.name}</a>
-                </h3>
-                <div className="race-row__meta">
-                  <span>{race.distanceLabel}</span>
-                  <span>Desde {formatMoney(race.priceFrom)}</span>
-                </div>
-                <div className={`status status--${race.status}`}>
-                  <i />
-                  <span>{statusCopy[race.status]}</span>
-                </div>
-              </div>
-              <a
-                className="round-link"
-                href={`/carreras/${race.slug}`}
-                aria-label={`Abrir ${race.name}`}
-              >
-                <span>↗</span>
-              </a>
-            </article>
+            <RaceRow key={race.id} race={race} priority={index < 3} />
           ))}
         </div>
       )}

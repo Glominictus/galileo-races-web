@@ -1,39 +1,14 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import AccountPanel from '@/components/AccountPanel';
-import { clearSessionCookies, getSessionToken, getStoredAccount } from '@/lib/api-response';
-import { getRacePortalClient } from '@/lib/race-portal/index.server';
+import AccountPanel from '@/components/account/AccountPanel';
+import { clearSessionCookies, resolveSessionAccount } from '@/lib/api-response';
 
-const sessionToken = getSessionToken(Astro.cookies);
-const storedAccount = getStoredAccount(Astro.cookies);
-let account = null;
+const { account } = await resolveSessionAccount(Astro.cookies);
 
-if (sessionToken) {
-  try {
-    account = await getRacePortalClient().getAccount(sessionToken);
-  } catch (error) {
-    console.warn('No se pudo leer la cuenta remota, usando la sesión activa:', error);
-  }
-}
-
-// Si no hay sesión activa, borramos las cookies y enviamos a /acceso
-if (!account && !sessionToken) {
+if (!account) {
   clearSessionCookies(Astro.cookies);
   return Astro.redirect('/acceso');
 }
-
-// Priorizamos los datos almacenados en la sesión activa (DNI y nombre reales del login/registro)
-const userAccount = storedAccount || account || {
-  id: 'account-active',
-  dni: '12345678Z',
-  dniType: 'dni' as const,
-  email: 'corredora@pulso.gal',
-  firstName: 'Iria',
-  lastName: 'Varela',
-  fullName: 'Iria Varela',
-  country: 'España',
-  emailVerified: true,
-};
 ---
 
 <BaseLayout title="Mi cuenta — PULSO" description="Tu perfil en PULSO." noindex>
@@ -43,7 +18,7 @@ const userAccount = storedAccount || account || {
       <h1>Tu cuenta.</h1>
     </header>
 
-    <AccountPanel account={userAccount} client:load />
+    <AccountPanel account={account} client:load />
   </section>
 </BaseLayout>
 

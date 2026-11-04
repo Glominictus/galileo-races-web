@@ -1,4 +1,4 @@
-import type { RaceDetail, RaceFilters, RaceModality, RaceStatus, RaceSummary, RaceType } from './types';
+import type { RaceDetail, RaceModality, RaceStatus, RaceSummary, RaceType } from './types';
 
 /** Raw Galileo integrations product race (subset used by the portal). */
 export interface IntegrationsRace {
@@ -202,16 +202,6 @@ export function mapIntegrationsRaceToSummary(raw: IntegrationsRace, now = new Da
   };
 }
 
-export function filterRaceSummaries(items: RaceSummary[], filters: RaceFilters = {}): RaceSummary[] {
-  const query = filters.query?.trim().toLocaleLowerCase('es') ?? '';
-  return items.filter((race) => {
-    const matchesQuery = !query || [race.name, race.city, race.province].some((value) => value.toLocaleLowerCase('es').includes(query));
-    return matchesQuery
-      && (!filters.province || race.province === filters.province)
-      && (!filters.type || race.type === filters.type)
-      && (!filters.status || race.status === filters.status);
-  });
-}
 
 export function normalizeRacePagePayload(payload: unknown): { items: unknown[]; total?: number } | null {
   if (!payload || typeof payload !== 'object') return null;

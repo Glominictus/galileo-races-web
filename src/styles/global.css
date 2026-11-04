@@ -14,6 +14,8 @@
 @import './components/search.css';
 @import './components/footer.css';
 @import './components/race-row.css';
+@import './components/race-card.css';
+@import './components/home.css';
 @import './components/catalog.css';
 @import './components/checkout.css';
 @import './components/registrations.css';

@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import AuthPanel from "@/components/AuthPanel";
+import AuthPanel from "@/components/account/AuthPanel";
 import { getSessionToken } from "@/lib/api-response";
 
 const sessionToken = getSessionToken(Astro.cookies);
@@ -53,7 +53,7 @@ if (sessionToken) {
             url("/images/hero-running-galicia.png") center/cover;
     }
     .access-copy .section-index {
-        color: var(--lime);
+        color: var(--accent);
     }
     .access-copy h1 {
         font-size: clamp(3.4rem, 6.5vw, 6.8rem);
@@ -62,7 +62,7 @@ if (sessionToken) {
     }
     .access-copy h1 em {
         font-style: normal;
-        color: var(--lime);
+        color: var(--accent);
     }
     .access-copy p {
         max-width: 34rem;
@@ -70,30 +70,6 @@ if (sessionToken) {
         font-size: 1.05rem;
         line-height: 1.6;
         margin-bottom: 2.5rem;
-    }
-    .access-perks {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 1.2rem;
-        max-width: 30rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.14);
-        padding-top: 2rem;
-    }
-    .access-perks li {
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-    }
-    .access-perks strong {
-        font-size: 0.95rem;
-        color: var(--white);
-    }
-    .access-perks span {
-        font-size: 0.85rem;
-        color: #94a3b8;
     }
     .access-form {
         display: flex;

@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import RaceMap from "@/components/RaceMap";
+import RaceMap from "@/components/races/RaceMap";
 import { getRacePortalClient } from "@/lib/race-portal/index.server";
 import 'leaflet/dist/leaflet.css';
 
@@ -28,96 +28,14 @@ const { items } = await getRacePortalClient().listRaces();
 </BaseLayout>
 
 <style>
-  .page-heading {
-    padding: clamp(3rem, 7vw, 7rem) clamp(1.25rem, 5vw, 5rem) 2rem;
-    background: var(--ink, #050707);
-    color: var(--white, #ffffff);
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 3rem;
-  }
-
-  .page-heading__content {
-    max-width: 48rem;
-  }
-
-  .page-heading .section-index {
-    color: var(--lime, #f97316);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    font-weight: 700;
-  }
-
-  .page-heading h1 {
-    font-size: clamp(3rem, 7vw, 6.5rem);
-    line-height: 0.85;
-    margin: 1.2rem 0 1.5rem;
-    letter-spacing: -0.06em;
-  }
-
-  .page-heading h1 em {
-    font-style: normal;
-    color: var(--lime, #f97316);
-  }
-
-  .page-heading p {
-    max-width: 38rem;
-    color: #a9aba4;
-    line-height: 1.6;
-    font-size: 1.1rem;
-  }
-
   .map-section {
     padding: clamp(2rem, 5vw, 5rem);
-  }
-
-  @media (max-width: 850px) {
-    .page-heading {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
   }
 
   /* ==========================================================================
      MODO APP MÓVIL SIN SCROLL (<= 768px)
      ========================================================================== */
   @media (max-width: 768px) {
-    :global(body.layout--mobile-app) .page-heading {
-      padding: 0.65rem 1.25rem;
-      flex-shrink: 0;
-      display: block;
-      grid-template-columns: 1fr;
-      gap: 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    :global(body.layout--mobile-app) .page-heading .section-index {
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-    }
-
-    :global(body.layout--mobile-app) .page-heading h1 {
-      font-size: 1.15rem;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      margin: 0.2rem 0 0;
-      font-weight: 800;
-    }
-
-    :global(body.layout--mobile-app) .page-heading h1 br {
-      display: none;
-    }
-
-    :global(body.layout--mobile-app) .page-heading h1 em {
-      margin-left: 0.25rem;
-    }
-
-    :global(body.layout--mobile-app) .page-heading p {
-      display: none;
-    }
-
     :global(body.layout--mobile-app) .map-section {
       padding: 0;
       margin: 0;
@@ -146,6 +64,7 @@ const { items } = await getRacePortalClient().listRaces();
       width: 100%;
       border-radius: 0;
       border: none;
+      box-shadow: none;
       position: relative;
       isolation: isolate;
       z-index: 1;

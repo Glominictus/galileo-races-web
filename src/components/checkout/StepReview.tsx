@@ -78,7 +78,7 @@ export default function StepReview({
         </button>
         <button
           type="button"
-          className="button button--lime"
+          className="button button--accent"
           disabled={submitting || !accepted}
           onClick={onSubmitOrder}
         >

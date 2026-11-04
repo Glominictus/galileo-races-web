@@ -15,7 +15,7 @@
   width: 5rem;
   height: 5rem;
   border-radius: 50%;
-  background: var(--lime);
+  background: var(--accent);
   display: grid;
   place-items: center;
   font: 700 1.4rem 'Manrope';
@@ -90,7 +90,7 @@
 
 .account-row-input:focus {
   outline: none;
-  border-color: var(--lime);
+  border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.15);
 }
 

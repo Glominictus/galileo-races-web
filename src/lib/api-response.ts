@@ -41,6 +41,26 @@ export function clearSessionCookies(cookies: AstroCookies) {
   cookies.delete(ACCOUNT_COOKIE, { path: '/' });
 }
 
+export async function resolveSessionAccount(cookies: AstroCookies): Promise<{
+  sessionToken: string;
+  account: PortalAccount | null;
+}> {
+  const sessionToken = getSessionToken(cookies);
+  if (!sessionToken) return { sessionToken: '', account: null };
+
+  const storedAccount = getStoredAccount(cookies);
+  if (storedAccount) return { sessionToken, account: storedAccount };
+
+  try {
+    const { getRacePortalClient } = await import('./race-portal/index.server');
+    const account = await getRacePortalClient().getAccount(sessionToken);
+    return { sessionToken, account };
+  } catch (error) {
+    console.warn('No se pudo cargar la cuenta activa:', error);
+    return { sessionToken, account: null };
+  }
+}
+
 export function apiError(error: unknown) {
   if (error instanceof RacePortalError) {
     return new Response(JSON.stringify({ message: error.message, code: error.code }), {

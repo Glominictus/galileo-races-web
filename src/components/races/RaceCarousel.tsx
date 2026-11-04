@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import type { RaceSummary } from '@/lib/race-portal/types';
-import { formatMoney, formatShortDate } from '@/lib/format';
+import { formatMoney, formatShortDate, statusCopy } from '@/lib/format';
 
 interface Props {
   races: RaceSummary[];
@@ -16,7 +16,7 @@ interface TimeRemaining {
 
 export default function RaceCarousel({ races = [] }: Props) {
   const activeRaces = useMemo(() => {
-    return races.filter((race) => race.status === 'open');
+    return races.filter((race) => race.status !== 'closed');
   }, [races]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -29,15 +29,7 @@ export default function RaceCarousel({ races = [] }: Props) {
   const touchEndX = useRef<number | null>(null);
   const minSwipeDistance = 45;
 
-  if (!activeRaces || activeRaces.length === 0) {
-    return (
-      <div className="next-race__content" style={{ color: '#888', padding: '2rem 0' }}>
-        No hay carreras próximas con inscripciones abiertas.
-      </div>
-    );
-  }
-
-  const validIndex = currentIndex >= activeRaces.length ? 0 : currentIndex;
+  const validIndex = activeRaces.length === 0 || currentIndex >= activeRaces.length ? 0 : currentIndex;
   const currentRace = activeRaces[validIndex];
 
   const transitionTo = (newIndex: number) => {
@@ -50,11 +42,13 @@ export default function RaceCarousel({ races = [] }: Props) {
   };
 
   const prevSlide = () => {
+    if (activeRaces.length === 0) return;
     const nextIdx = validIndex === 0 ? activeRaces.length - 1 : validIndex - 1;
     transitionTo(nextIdx);
   };
 
   const nextSlide = () => {
+    if (activeRaces.length === 0) return;
     const nextIdx = validIndex === activeRaces.length - 1 ? 0 : validIndex + 1;
     transitionTo(nextIdx);
   };
@@ -67,26 +61,6 @@ export default function RaceCarousel({ races = [] }: Props) {
     }, 6000);
     return () => clearInterval(interval);
   }, [isPaused, validIndex, activeRaces.length, isFading]);
-
-  // Touch Swipe handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
-    touchEndX.current = null;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    const distance = touchStartX.current - touchEndX.current;
-    if (distance > minSwipeDistance) {
-      nextSlide();
-    } else if (distance < -minSwipeDistance) {
-      prevSlide();
-    }
-  };
 
   // Countdown timer
   useEffect(() => {
@@ -121,6 +95,34 @@ export default function RaceCarousel({ races = [] }: Props) {
     return () => clearInterval(timer);
   }, [validIndex, currentRace]);
 
+  if (!activeRaces || activeRaces.length === 0 || !currentRace) {
+    return (
+      <div className="next-race__content" style={{ color: '#888', padding: '2rem 0' }}>
+        No hay carreras próximas con inscripciones abiertas.
+      </div>
+    );
+  }
+
+  // Touch Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchEndX.current = null;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    if (distance > minSwipeDistance) {
+      nextSlide();
+    } else if (distance < -minSwipeDistance) {
+      prevSlide();
+    }
+  };
+
   return (
     <article
       className="next-race__card"
@@ -144,95 +146,101 @@ export default function RaceCarousel({ races = [] }: Props) {
             {String(validIndex + 1).padStart(2, '0')} / {String(activeRaces.length).padStart(2, '0')}
           </span>
           <span className="race-carousel__live-badge">
-            <span className="race-carousel__live-dot"></span>
-            Inscripción abierta
+            <span
+              className="race-carousel__live-dot"
+              style={{ backgroundColor: currentRace.status === 'open' ? 'var(--accent)' : '#f59e0b' }}
+            ></span>
+            {statusCopy[currentRace.status] || currentRace.status}
           </span>
         </div>
       </div>
 
       {/* Contenido principal */}
       <div className={`next-race__content ${isFading ? 'next-race__content--fading' : ''}`}>
-        <span className="section-index">01 — Próximamente</span>
+        <div className="next-race__content-top">
+          <span className="section-index">Próxima salida</span>
 
-        <h2>{currentRace.name}</h2>
+          <h2 className="next-race__title">{currentRace.name}</h2>
 
-        {/* Badges / Metadatos ordenados */}
-        <div className="next-race__pills">
-          <span className="next-race__pill next-race__pill--date">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            {formatShortDate(currentRace.startsAt)}
-          </span>
+          {/* Badges / Metadatos ordenados */}
+          <div className="next-race__pills">
+            <span className="next-race__pill next-race__pill--date">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              {formatShortDate(currentRace.startsAt)}
+            </span>
 
-          <span className="next-race__pill next-race__pill--location">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            {currentRace.city} · {currentRace.province}
-          </span>
+            <span className="next-race__pill next-race__pill--location">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              {currentRace.city} · {currentRace.province}
+            </span>
 
-          <span className="next-race__pill next-race__pill--distance">
-            {currentRace.distanceLabel}
-          </span>
+            <span className="next-race__pill next-race__pill--distance">
+              {currentRace.distanceLabel}
+            </span>
 
-          <span className="next-race__pill next-race__pill--type">
-            {currentRace.type}
-          </span>
+            <span className="next-race__pill next-race__pill--type">
+              {currentRace.type}
+            </span>
 
-          <span className="next-race__pill next-race__pill--price">
-            Desde {formatMoney(currentRace.priceFrom)}
-          </span>
+            <span className="next-race__pill next-race__pill--price">
+              Desde {formatMoney(currentRace.priceFrom)}
+            </span>
+          </div>
         </div>
 
-        {/* Bloque Deportivo Countdown */}
-        <div className="next-race__countdown-box">
-          <span className="next-race__countdown-title">Cuenta atrás para la salida</span>
-          {timeRemaining ? (
-            timeRemaining.isExpired ? (
-              <div className="next-race__timer-live">¡Prueba en curso!</div>
+        <div className="next-race__content-bottom">
+          {/* Bloque Deportivo Countdown */}
+          <div className="next-race__countdown-box">
+            <span className="next-race__countdown-title">Cuenta atrás para la salida</span>
+            {timeRemaining ? (
+              timeRemaining.isExpired ? (
+                <div className="next-race__timer-live">¡Prueba en curso!</div>
+              ) : (
+                <div className="next-race__timer-grid" role="timer" aria-live="off">
+                  <div className="next-race__timer-card">
+                    <strong className="next-race__timer-number">
+                      {String(timeRemaining.days).padStart(2, '0')}
+                    </strong>
+                    <span className="next-race__timer-unit">Días</span>
+                  </div>
+                  <span className="next-race__timer-sep" aria-hidden="true">:</span>
+                  <div className="next-race__timer-card">
+                    <strong className="next-race__timer-number">
+                      {String(timeRemaining.hours).padStart(2, '0')}
+                    </strong>
+                    <span className="next-race__timer-unit">Horas</span>
+                  </div>
+                  <span className="next-race__timer-sep" aria-hidden="true">:</span>
+                  <div className="next-race__timer-card">
+                    <strong className="next-race__timer-number">
+                      {String(timeRemaining.minutes).padStart(2, '0')}
+                    </strong>
+                    <span className="next-race__timer-unit">Min</span>
+                  </div>
+                  <span className="next-race__timer-sep" aria-hidden="true">:</span>
+                  <div className="next-race__timer-card">
+                    <strong className="next-race__timer-number">
+                      {String(timeRemaining.seconds).padStart(2, '0')}
+                    </strong>
+                    <span className="next-race__timer-unit">Seg</span>
+                  </div>
+                </div>
+              )
             ) : (
-              <div className="next-race__timer-grid" role="timer" aria-live="off">
-                <div className="next-race__timer-card">
-                  <strong className="next-race__timer-number">
-                    {String(timeRemaining.days).padStart(2, '0')}
-                  </strong>
-                  <span className="next-race__timer-unit">Días</span>
-                </div>
-                <span className="next-race__timer-sep" aria-hidden="true">:</span>
-                <div className="next-race__timer-card">
-                  <strong className="next-race__timer-number">
-                    {String(timeRemaining.hours).padStart(2, '0')}
-                  </strong>
-                  <span className="next-race__timer-unit">Horas</span>
-                </div>
-                <span className="next-race__timer-sep" aria-hidden="true">:</span>
-                <div className="next-race__timer-card">
-                  <strong className="next-race__timer-number">
-                    {String(timeRemaining.minutes).padStart(2, '0')}
-                  </strong>
-                  <span className="next-race__timer-unit">Min</span>
-                </div>
-                <span className="next-race__timer-sep" aria-hidden="true">:</span>
-                <div className="next-race__timer-card">
-                  <strong className="next-race__timer-number">
-                    {String(timeRemaining.seconds).padStart(2, '0')}
-                  </strong>
-                  <span className="next-race__timer-unit">Seg</span>
-                </div>
-              </div>
-            )
-          ) : (
-            <div className="next-race__timer-loading">Calculando cuenta atrás...</div>
-          )}
-        </div>
+              <div className="next-race__timer-loading">Calculando cuenta atrás...</div>
+            )}
+          </div>
 
-        {/* Acciones y Controles de navegación */}
-        <div className="next-race__actions">
+          {/* Acciones y Controles de navegación */}
+          <div className="next-race__actions">
           <a className="button button--dark next-race__btn" href={`/carreras/${currentRace.slug}`}>
             Ver carrera <span>→</span>
           </a>
@@ -276,6 +284,7 @@ export default function RaceCarousel({ races = [] }: Props) {
               </svg>
             </button>
           </div>
+        </div>
         </div>
       </div>
     </article>

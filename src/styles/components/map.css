@@ -1,64 +1,52 @@
 /* ==========================================================================
-   SECCIÓN MAPA (HOME / CARRERAS)
+   MAPA INTERACTIVO DE CARRERAS (RACE MAP)
    ========================================================================== */
 
-.home-map {
-  background: var(--white);
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  min-height: 48rem;
-}
-
-.home-map__image {
-  overflow: hidden;
-}
-
-.home-map__image img {
+.race-map-container {
+  height: 600px;
   width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.08);
+}
+
+.race-map-canvas {
   height: 100%;
-  object-fit: cover;
-  transition: transform 1s ease;
+  width: 100%;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .home-map:hover img {
-    transform: scale(1.025);
-  }
+.race-map-popup {
+  font-family: inherit;
+  padding: 0.25rem;
+  color: var(--ink);
 }
 
-.home-map__copy {
-  padding: clamp(3rem, 8vw, 8rem);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.race-map-popup__title {
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 700;
 }
 
-.home-map h2 {
-  font-size: clamp(3rem, 6vw, 6rem);
-  line-height: 0.92;
-  margin: 1rem 0 2rem;
-}
-
-.home-map p {
-  font-size: 1.08rem;
-  line-height: 1.6;
+.race-map-popup__location {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
   color: var(--muted);
-  max-width: 34rem;
 }
 
-.home-map .button {
-  align-self: flex-start;
-  margin-top: 1rem;
+.race-map-popup__link {
+  display: inline-block;
+  padding: 0.38rem 0.65rem;
+  background: var(--ink);
+  color: var(--white) !important;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.18s ease;
 }
 
-/* Adaptación para pantallas móviles (< 800px) */
-@media (max-width: 800px) {
-  .home-map {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-
-  .home-map__image {
-    height: 22rem;
-  }
+.race-map-popup__link:hover {
+  background: var(--accent);
 }

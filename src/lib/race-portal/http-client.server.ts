@@ -1,15 +1,29 @@
 import { z } from 'zod';
 import type { RacePortalClient } from './client';
 import { RacePortalError } from './client';
+import { filterRaces } from '@/lib/domain/races/filters';
 import {
-  filterRaceSummaries,
   mapIntegrationsRaceToDetail,
   mapIntegrationsRaceToSummary,
   normalizeRacePagePayload,
   slugifyRace,
   type IntegrationsRace,
 } from './map-integrations-race.server';
-import type { CreateRaceOrderInput, LoginInput, PortalAccount, PortalSession, RaceAvailability, RaceDetail, RaceFilters, RaceOrderResult, RacePage, RegisterInput, Registration, RaceSummary, UpdateAccountInput } from './types';
+import type {
+  CreateRaceOrderInput,
+  LoginInput,
+  PortalAccount,
+  PortalSession,
+  RaceAvailability,
+  RaceDetail,
+  RaceFilters,
+  RaceOrderResult,
+  RacePage,
+  RegisterInput,
+  Registration,
+  RaceSummary,
+  UpdateAccountInput,
+} from './types';
 
 const unknownObject = z.object({}).loose();
 
@@ -43,7 +57,7 @@ export class GalileoRacePortalClient implements RacePortalClient {
     ));
 
     // Integrations may ignore query params; always filter client-side for a stable contract.
-    const items = filterRaceSummaries(mapped, filters);
+    const items = filterRaces(mapped, filters);
     return { items, total: items.length };
   }
 
@@ -64,12 +78,13 @@ export class GalileoRacePortalClient implements RacePortalClient {
     return mapIntegrationsRaceToDetail(raw as IntegrationsRace);
   }
 
-  getAvailability(slug: string) {
-    return this.getRace(slug).then((race): RaceAvailability => ({
+  async getAvailability(slug: string): Promise<RaceAvailability> {
+    const race = await this.getRace(slug);
+    return {
       raceId: race.id,
       modalities: race.modalities.map(({ id, availablePlaces, status }) => ({ id, availablePlaces, status })),
       checkedAt: new Date().toISOString(),
-    }));
+    };
   }
 
   login(input: LoginInput) { return this.request<PortalSession>('/auth/login', this.jsonPost(input)); }

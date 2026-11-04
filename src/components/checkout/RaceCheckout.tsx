@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
 import { formatDate } from '@/lib/format';
 import type { PortalAccount, RaceDetail } from '@/lib/race-portal/types';
 import { useSessionStorage } from '@/lib/hooks/useSessionStorage';
-import type { CheckoutStep, ParticipantFormData } from './checkout/types';
-import StepModality from './checkout/StepModality';
-import StepParticipant from './checkout/StepParticipant';
-import StepReview from './checkout/StepReview';
+import type { CheckoutStep, ParticipantFormData } from './types';
+import StepModality from './StepModality';
+import StepParticipant from './StepParticipant';
+import StepReview from './StepReview';
 
 interface CheckoutDraft {
   modalityId?: string;

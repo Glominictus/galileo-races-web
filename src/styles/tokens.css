@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --ink: #0B1220;
-  --paper: #F5F7FA;
+  --ink: #0B0F19;
+  --paper: #F8FAFC;
   --white: #FFFFFF;
-  --lime: #F97316;
-  --muted: #64748B;
-  --line: rgba(11, 18, 32, .17);
-  --header: 90px;
+  --accent: #F97316;
+  --muted: #475569;
+  --line: rgba(15, 23, 42, 0.08);
+  --header: 140px;
   font-family: 'DM Sans', sans-serif;
   color: var(--ink);
   background: var(--paper);
@@ -15,6 +15,6 @@
 
 @media (max-width: 800px) {
   :root {
-    --header: 76px;
+    --header: 84px;
   }
 }

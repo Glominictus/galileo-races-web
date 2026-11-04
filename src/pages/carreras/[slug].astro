@@ -36,7 +36,7 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
       </p>
       {
         hasOpen && (
-          <a class="button button--lime race-hero__cta" href={`/inscripcion/${race.slug}`}>
+          <a class="button button--accent race-hero__cta" href={`/inscripcion/${race.slug}`}>
             Inscribirme ahora <span>→</span>
           </a>
         )
@@ -107,7 +107,7 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
                 {
                   item.status === 'open' && (
                     <>
-                      <a class="button button--lime button--sm" href={`/inscripcion/${race.slug}?modality=${item.id}`}>
+                      <a class="button button--accent button--sm" href={`/inscripcion/${race.slug}?modality=${item.id}`}>
                         Inscribirme <span>→</span>
                       </a>
                       <span class="modality-mobile-cta" aria-hidden="true">
@@ -150,11 +150,11 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
       ><h2>{hasOpen ? "Nos vemos en la salida." : statusCopy[race.status]}</h2>
     </div>{
       hasOpen ? (
-        <a class="button button--lime" href={`/inscripcion/${race.slug}`}>
+        <a class="button button--accent" href={`/inscripcion/${race.slug}`}>
           Inscribirme ahora <span>→</span>
         </a>
       ) : (
-        <a class="button button--lime" href="/carreras">
+        <a class="button button--accent" href="/carreras">
           Ver otras carreras <span>→</span>
         </a>
       )
@@ -170,7 +170,7 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
             Desde <strong>{formatMoney(race.priceFrom)}</strong>
           </span>
         </div>
-        <a class="button button--lime mobile-sticky-bar__cta" href={`/inscripcion/${race.slug}`}>
+        <a class="button button--accent mobile-sticky-bar__cta" href={`/inscripcion/${race.slug}`}>
           Inscribirme <span>→</span>
         </a>
       </aside>
@@ -206,7 +206,7 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
     max-width: 75rem;
   }
   .race-hero__content > span {
-    color: var(--lime);
+    color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.17em;
     font-size: 0.7rem;
@@ -361,8 +361,9 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
   }
   .race-cta {
     padding: clamp(5rem, 8vw, 8rem) clamp(1.25rem, 6vw, 6rem);
-    background: var(--ink);
-    color: var(--white);
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+    border-top: 1px solid rgba(249, 115, 22, 0.15);
+    color: var(--ink);
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -371,9 +372,10 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
     font-size: clamp(3rem, 7vw, 7rem);
     line-height: 0.9;
     margin: 1rem 0 0;
+    color: var(--ink);
   }
   .race-cta .section-index {
-    color: var(--lime);
+    color: var(--accent);
   }
   .modalities-scroll-container,
   .modalities-list {
@@ -555,7 +557,7 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
       gap: 0.35rem;
       font-size: 0.85rem;
       font-weight: 700;
-      color: var(--lime);
+      color: var(--accent);
     }
 
     .race-detail {
@@ -617,11 +619,11 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
       justify-content: space-between;
       align-items: center;
       padding: 0.8rem 1.25rem calc(0.8rem + env(safe-area-inset-bottom, 0px)) 1.25rem;
-      background: rgba(11, 18, 32, 0.95);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -4px 20px -2px rgba(15, 23, 42, 0.08);
     }
     .mobile-sticky-bar__details {
       display: flex;
@@ -630,18 +632,18 @@ const jsonLd = buildRaceJsonLd(race, siteUrl);
     }
     .mobile-sticky-bar__label {
       font-size: 0.68rem;
-      color: var(--lime);
+      color: var(--accent);
       text-transform: uppercase;
       letter-spacing: 0.1em;
       font-weight: 700;
     }
     .mobile-sticky-bar__price {
       font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--muted);
     }
     .mobile-sticky-bar__price strong {
       font-size: 1.25rem;
-      color: var(--white);
+      color: var(--ink);
       font-family: 'Manrope', sans-serif;
       font-weight: 800;
     }

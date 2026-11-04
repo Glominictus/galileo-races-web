@@ -3,6 +3,7 @@ import { RacePortalError } from './client';
 import { mockAccount, mockRaces, mockRegistrations } from './mock-data.server';
 import type { CreateRaceOrderInput, LoginInput, PortalAccount, RaceFilters, RegisterInput, Registration, UpdateAccountInput } from './types';
 import { detectDocumentType, isValidDniOrNie, normalizeDocument } from '@/lib/domain/auth/identity';
+import { filterRaces } from '@/lib/domain/races/filters';
 
 const ordersByKey = new Map<string, { orderId: string; total: number; paymentUrl: string }>();
 const accountsByDni = new Map<string, PortalAccount>([[mockAccount.dni.toUpperCase(), mockAccount]]);
@@ -11,11 +12,7 @@ const registrationsByToken = new Map<string, Registration[]>();
 
 export class MockRacePortalClient implements RacePortalClient {
   async listRaces(filters: RaceFilters = {}) {
-    const query = filters.query?.trim().toLocaleLowerCase('es') ?? '';
-    const items = mockRaces.filter((race) => {
-      const matchesQuery = !query || [race.name, race.city, race.province].some((value) => value.toLocaleLowerCase('es').includes(query));
-      return matchesQuery && (!filters.province || race.province === filters.province) && (!filters.type || race.type === filters.type) && (!filters.status || race.status === filters.status);
-    });
+    const items = filterRaces(mockRaces, filters);
     return { items, total: items.length };
   }
 
@@ -52,6 +49,9 @@ export class MockRacePortalClient implements RacePortalClient {
     const normalizedDni = normalizeDocument(input.dni);
     if (!isValidDniOrNie(normalizedDni) || !input.email.includes('@') || input.password.length < 8) {
       throw new RacePortalError('Revisa los datos del registro y asegúrate de que la contraseña tenga al menos 8 caracteres', 'INVALID_REGISTRATION', 400);
+    }
+    if (accountsByDni.has(normalizedDni)) {
+      throw new RacePortalError('Ya existe una cuenta registrada con este DNI o NIE.', 'DOCUMENT_ALREADY_EXISTS', 409);
     }
     const firstName = input.firstName.trim();
     const lastName = input.lastName.trim();

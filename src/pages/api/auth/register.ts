@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { apiError, json, setSessionToken } from '@/lib/api-response';
-import { RacePortalError } from '@/lib/race-portal/client';
 import { getRacePortalClient } from '@/lib/race-portal/index.server';
 import { isValidDniOrNie, normalizeDocument } from '@/lib/domain/auth/identity';
 
@@ -24,11 +23,9 @@ const schema = z.object({
     .max(50, 'El documento no puede superar los 50 caracteres.')
     .transform(normalizeDocument),
   email: z
-    .string()
     .email('Introduce un correo electrónico válido.')
     .max(255, 'El correo electrónico no puede superar los 255 caracteres.'),
   confirmEmail: z
-    .string()
     .email('Introduce el mismo correo electrónico.')
     .max(255, 'El correo electrónico no puede superar los 255 caracteres.'),
   phone: z
@@ -84,38 +81,9 @@ const schema = z.object({
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const input = schema.parse(await request.json());
-
-    try {
-      const session = await getRacePortalClient().register(input);
-      setSessionToken(cookies, session.token, session.account);
-      return json(session.account, { status: 201 });
-    } catch (clientError: unknown) {
-      if (clientError instanceof RacePortalError && (clientError.status === 400 || clientError.status === 409)) {
-        return json({ message: clientError.message, code: clientError.code }, { status: clientError.status });
-      }
-
-      // Contingencia local si el servidor Galileo devuelve error en desarrollo
-      console.warn('Servidor Galileo no disponible, creando sesión mock local para testing.');
-      const fallbackToken = `session_${Date.now()}`;
-      const fallbackAccount = {
-        id: `account-${Date.now()}`,
-        dni: input.dni,
-        dniType: input.dniType,
-        email: input.email,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        fullName: `${input.firstName} ${input.lastName}`.trim(),
-        phone: input.phone,
-        birthDate: input.birthDate,
-        gender: input.gender,
-        country: input.country || 'España',
-        acceptedTermsAt: new Date().toISOString(),
-        emailVerified: true,
-      };
-
-      setSessionToken(cookies, fallbackToken, fallbackAccount);
-      return json(fallbackAccount, { status: 201 });
-    }
+    const session = await getRacePortalClient().register(input);
+    setSessionToken(cookies, session.token, session.account);
+    return json(session.account, { status: 201 });
   } catch (error: unknown) {
     return apiError(error);
   }

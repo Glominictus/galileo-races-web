@@ -2,19 +2,15 @@
    CARRUSEL (PRÓXIMAS CARRERAS DESTACADAS)
    ========================================================================== */
 
-.next-race {
-  padding: clamp(3.5rem, 6vw, 6rem) clamp(1.25rem, 5vw, 5rem) clamp(4rem, 8vw, 8rem);
-  background: transparent;
-}
-
 .next-race__card {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
+  height: 590px;
   background: #ffffff;
-  border: 1px solid rgba(11, 18, 32, 0.08);
+  border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 16px 40px -10px rgba(11, 18, 32, 0.08);
+  box-shadow: 0 16px 40px -10px rgba(15, 23, 42, 0.06);
   position: relative;
   touch-action: pan-y;
   user-select: none;
@@ -27,7 +23,8 @@
 .next-race__image {
   position: relative;
   width: 100%;
-  min-height: 480px;
+  height: 100%;
+  min-height: 0;
   background: #0b1220;
   overflow: hidden;
 }
@@ -62,7 +59,7 @@
 }
 
 .race-carousel__number {
-  background: rgba(11, 18, 32, 0.75);
+  background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: #ffffff;
@@ -78,7 +75,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(11, 18, 32, 0.75);
+  background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: #ffffff;
@@ -92,10 +89,10 @@
 .race-carousel__live-dot {
   width: 8px;
   height: 8px;
-  background-color: var(--lime);
+  background-color: var(--accent);
   border-radius: 50%;
   display: inline-block;
-  box-shadow: 0 0 8px var(--lime);
+  box-shadow: 0 0 8px var(--accent);
   animation: pulse-dot 2s infinite ease-in-out;
 }
 
@@ -115,13 +112,26 @@
    -------------------------------------------------------------------------- */
 
 .next-race__content {
-  padding: clamp(2rem, 4vw, 3.5rem);
+  padding: 1.5rem clamp(1.5rem, 2.5vw, 2.25rem);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  height: 100%;
+  box-sizing: border-box;
   background: #ffffff;
   color: var(--ink);
   transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.next-race__content-top {
+  display: flex;
+  flex-direction: column;
+}
+
+.next-race__content-bottom {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
 }
 
 .next-race__content--fading {
@@ -129,13 +139,17 @@
   transform: translateY(4px);
 }
 
-.next-race__content h2 {
-  font-size: clamp(2.2rem, 3.8vw, 3.5rem);
+.next-race__title {
+  font-size: clamp(1.8rem, 2.5vw, 2.5rem);
   font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.04em;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
   color: var(--ink);
-  margin: 0.4rem 0 1.25rem 0;
+  margin: 0.35rem 0 0.75rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* --------------------------------------------------------------------------
@@ -145,19 +159,19 @@
 .next-race__pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.75rem;
+  gap: 0.45rem;
+  margin-bottom: 0.5rem;
 }
 
 .next-race__pill {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
+  padding: 0.35rem 0.8rem;
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  background: rgba(11, 18, 32, 0.05);
+  background: rgba(15, 23, 42, 0.05);
   color: #334155;
 }
 
@@ -167,7 +181,7 @@
 }
 
 .next-race__pill--date {
-  background: rgba(11, 18, 32, 0.07);
+  background: rgba(15, 23, 42, 0.08);
   color: var(--ink);
   font-weight: 700;
 }
@@ -188,10 +202,10 @@
 
 .next-race__countdown-box {
   background: #f8fafc;
-  border: 1px solid rgba(11, 18, 32, 0.08);
+  border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 1.1rem 1.25rem;
-  margin-bottom: 2rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
 }
 
 .next-race__countdown-title {
@@ -213,7 +227,7 @@
 .next-race__timer-card {
   flex: 1;
   background: #ffffff;
-  border: 1px solid rgba(11, 18, 32, 0.08);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 0.5rem 0.4rem;
   text-align: center;
@@ -286,15 +300,25 @@
   background: var(--ink);
   color: #ffffff;
   border: 1px solid var(--ink);
-  transition: all 0.2s ease;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
 }
 
+.next-race__btn span {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
 .next-race__btn:hover {
-  background: var(--lime);
-  border-color: var(--lime);
+  background: #1e293b;
+  border-color: #334155;
   color: #ffffff;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.25);
+}
+
+.next-race__btn:hover span {
+  transform: translateX(4px);
 }
 
 .race-carousel__controls {
@@ -307,7 +331,7 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 1px solid rgba(11, 18, 32, 0.15);
+  border: 1px solid var(--line);
   background: #ffffff;
   color: var(--ink);
   display: inline-flex;
@@ -349,7 +373,7 @@
 }
 
 .carousel-dots .dot--active {
-  background: var(--lime);
+  background: var(--accent);
   width: 1.4rem;
   border-radius: 999px;
 }
@@ -361,21 +385,23 @@
 @media (max-width: 900px) {
   .next-race__card {
     grid-template-columns: 1fr;
+    height: auto;
   }
 
   .next-race__image {
-    min-height: 320px;
-    height: 340px;
+    min-height: 200px;
+    height: 220px;
   }
 
   .next-race__content {
-    padding: 1.75rem 1.5rem;
+    height: auto;
+    padding: 1.25rem 1.15rem;
   }
 
   .next-race__actions {
     flex-direction: column;
     align-items: stretch;
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
   .next-race__btn {
@@ -390,20 +416,39 @@
 }
 
 @media (max-width: 480px) {
+  .next-race__image {
+    min-height: 185px;
+    height: 195px;
+  }
+
+  .next-race__content {
+    padding: 1rem 0.85rem;
+  }
+
+  .next-race__title {
+    font-size: 1.35rem;
+    margin: 0.25rem 0 0.5rem;
+  }
+
+  .next-race__countdown-box {
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.85rem;
+  }
+
   .next-race__timer-grid {
     gap: 0.35rem;
   }
 
   .next-race__timer-card {
-    min-width: 44px;
-    padding: 0.4rem 0.2rem;
+    min-width: 40px;
+    padding: 0.35rem 0.2rem;
   }
 
   .next-race__timer-number {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
 
   .next-race__timer-unit {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
   }
 }

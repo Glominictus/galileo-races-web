@@ -491,7 +491,7 @@ export default function AuthPanel({ nextUrl }: AuthPanelProps) {
               onChange={() => handleFieldChange('acceptedTerms')}
             />
             <span>
-              He leído y acepto los <a href="#" className="text-link">términos y condiciones</a> y la <a href="#" className="text-link">política de privacidad</a>.
+              He leído y acepto los términos y condiciones de uso y la política de privacidad de PULSO.
             </span>
           </label>
         )}
@@ -503,7 +503,7 @@ export default function AuthPanel({ nextUrl }: AuthPanelProps) {
         )}
 
         <button
-          className="button button--lime button--full auth-submit"
+          className="button button--accent button--full auth-submit"
           disabled={status === 'loading'}
         >
           <span>

@@ -6,6 +6,14 @@ export function formatShortDate(value: string | Date) {
   return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' }).format(new Date(value)).replace('.', '');
 }
 
+export function formatDayMonth(value: string | Date) {
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return { day: '--', month: '---' };
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = new Intl.DateTimeFormat('es-ES', { month: 'short' }).format(d).toUpperCase().replace('.', '');
+  return { day, month };
+}
+
 export function formatMonthName(value: string | Date) {
   const name = new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(value));
   return name.charAt(0).toUpperCase() + name.slice(1);

@@ -58,4 +58,24 @@ describe('MockRacePortalClient', () => {
     expect(updated.club).toBe('Galileo Runners');
     expect(updated.fullName).toBe('Ana Gómez');
   });
+
+  it('rejects duplicate DNI registration with 409', async () => {
+    const client = new MockRacePortalClient();
+    await expect(
+      client.register({
+        firstName: 'Iria',
+        lastName: 'Varela',
+        dni: '12345678Z',
+        email: 'iria@pulso.gal',
+        confirmEmail: 'iria@pulso.gal',
+        password: 'password123',
+        confirmPassword: 'password123',
+        phone: '600000000',
+        birthDate: '1992-04-12',
+      }),
+    ).rejects.toMatchObject({
+      code: 'DOCUMENT_ALREADY_EXISTS',
+      status: 409,
+    });
+  });
 });

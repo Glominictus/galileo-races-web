@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import RaceCheckout from '@/components/RaceCheckout';
+import RaceCheckout from '@/components/checkout/RaceCheckout';
 import { getRacePortalClient } from '@/lib/race-portal/index.server';
 import { RacePortalError } from '@/lib/race-portal/client';
-import { getSessionToken, getStoredAccount } from '@/lib/api-response';
+import { resolveSessionAccount } from '@/lib/api-response';
 
 const { slug } = Astro.params;
 let race;
@@ -17,18 +17,7 @@ try {
   throw error;
 }
 
-const sessionToken = getSessionToken(Astro.cookies);
-const storedAccount = getStoredAccount(Astro.cookies);
-let account = storedAccount;
-
-if (sessionToken && !account) {
-  try {
-    account = await getRacePortalClient().getAccount(sessionToken);
-  } catch (error) {
-    console.warn('No se pudo cargar la cuenta para el checkout:', error);
-  }
-}
-
+const { account } = await resolveSessionAccount(Astro.cookies);
 const initialModalityId = Astro.url.searchParams.get('modality') ?? undefined;
 ---
 

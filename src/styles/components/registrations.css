@@ -44,13 +44,13 @@
   position: absolute;
   top: 0.35rem;
   right: 0.35rem;
-  background: var(--lime);
-  color: var(--ink);
+  background: var(--accent);
+  color: #ffffff;
   padding: 0.2rem 0.45rem;
   font-size: 0.65rem;
   font-weight: 800;
   line-height: 1;
-  border-radius: 3px;
+  border-radius: 4px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -88,7 +88,7 @@
 }
 
 .registration-card h3 a:hover {
-  color: var(--lime);
+  color: var(--accent);
 }
 
 .registration-card__meta {
@@ -134,7 +134,7 @@
 }
 
 .schedule-item__label svg {
-  color: var(--lime);
+  color: var(--accent);
   flex-shrink: 0;
 }
 

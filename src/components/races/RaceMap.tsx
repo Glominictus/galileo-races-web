@@ -26,17 +26,16 @@ export default function RaceMap({ races }: RaceMapProps) {
   const validRaces = races.filter((race) => race.latitude && race.longitude);
 
   return (
-    <div style={{ height: '600px', width: '100%', borderRadius: '1rem', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+    <div className="race-map-container">
       <MapContainer
         center={centerGalicia}
         zoom={8}
         scrollWheelZoom={false}
-        style={{ height: '100%', width: '100%' }}
+        className="race-map-canvas"
       >
-        
         <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         {validRaces.map((race) => (
@@ -46,24 +45,12 @@ export default function RaceMap({ races }: RaceMapProps) {
             icon={customIcon}
           >
             <Popup>
-              <div style={{ fontFamily: 'sans-serif', padding: '4px', color: '#111' }}>
-                <strong style={{ fontSize: '1rem', display: 'block', marginBottom: '4px' }}>{race.name}</strong>
-                <p style={{ margin: '0 0 8px 0', fontSize: '0.85rem', color: '#555' }}>
-                 {race.city} · {race.province}
+              <div className="race-map-popup">
+                <strong className="race-map-popup__title">{race.name}</strong>
+                <p className="race-map-popup__location">
+                  {race.city} · {race.province}
                 </p>
-                <a
-                  href={`/carreras/${race.slug}`}
-                  style={{
-                    display: 'inline-block',
-                    padding: '6px 10px',
-                    background: '#050707',
-                    color: '#fff',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    textDecoration: 'none',
-                    fontWeight: 600
-                  }}
-                >
+                <a href={`/carreras/${race.slug}`} className="race-map-popup__link">
                   Ver carrera ↗
                 </a>
               </div>

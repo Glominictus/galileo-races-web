@@ -1,12 +1,14 @@
 /* ==========================================================================
-   CALENDARIO DE CARRERAS
+   CALENDARIO DE CARRERAS (ESTÉTICA LUMINOSA)
    ========================================================================== */
 
 .calendar-widget {
-  background: var(--surface, #111414);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--line, rgba(15, 23, 42, 0.08));
+  border-radius: 16px;
   padding: 2rem;
-  color: var(--white, #ffffff);
+  color: var(--ink, #0B1220);
+  box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.04);
 }
 
 .calendar-header {
@@ -20,27 +22,33 @@
   font-size: 1.8rem;
   font-weight: 800;
   margin: 0;
+  color: var(--ink, #0B1220);
 }
 
 .calendar-header h2 span {
-  color: var(--lime, #f97316);
+  color: var(--accent, #f97316);
 }
 
 .calendar-nav-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: #F1F5F9;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: var(--ink, #0B1220);
   width: 2.8rem;
   height: 2.8rem;
   border-radius: 50%;
   cursor: pointer;
   font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
 }
 
 .calendar-nav-btn:hover {
-  background: var(--lime, #f97316);
-  color: #050707;
+  background: var(--accent, #f97316);
+  color: #ffffff;
+  border-color: var(--accent, #f97316);
+  transform: translateY(-1px);
 }
 
 .calendar-legend {
@@ -48,7 +56,7 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
   font-size: 0.8rem;
-  color: #a0a5a5;
+  color: var(--muted, #64748B);
   flex-wrap: wrap;
 }
 
@@ -67,25 +75,25 @@
 
 .calendar-widget .dot--open,
 .event-badge--open .badge-dot {
-  background-color: #22c55e !important;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  background-color: #16a34a !important;
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.35);
 }
 
 .calendar-widget .dot--upcoming,
 .event-badge--upcoming .badge-dot {
-  background-color: #f97316 !important;
-  box-shadow: 0 0 6px rgba(249, 115, 22, 0.5);
+  background-color: #ea580c !important;
+  box-shadow: 0 0 6px rgba(234, 88, 12, 0.35);
 }
 
 .calendar-widget .dot--sold-out,
 .event-badge--sold-out .badge-dot {
-  background-color: #ef4444 !important;
-  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+  background-color: #dc2626 !important;
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.35);
 }
 
 .calendar-widget .dot--closed,
 .event-badge--closed .badge-dot {
-  background-color: #6b7280 !important;
+  background-color: #94a3b8 !important;
 }
 
 .calendar-weekdays {
@@ -95,10 +103,10 @@
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #a0a5a5;
+  color: var(--muted, #64748B);
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--line, rgba(15, 23, 42, 0.08));
 }
 
 .calendar-grid {
@@ -109,12 +117,18 @@
 
 .calendar-day {
   min-height: 90px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #F8FAFC;
+  border: 1px solid rgba(15, 23, 42, 0.06);
   border-radius: 8px;
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.calendar-day:hover {
+  background: #F1F5F9;
+  border-color: rgba(15, 23, 42, 0.12);
 }
 
 .calendar-day.day--empty {
@@ -125,12 +139,12 @@
 .day-number {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #6b7280;
+  color: #94A3B8;
   margin-bottom: 0.3rem;
 }
 
 .calendar-day.day--has-events .day-number {
-  color: var(--white, #ffffff);
+  color: var(--ink, #0B1220);
 }
 
 .day-events {
@@ -144,19 +158,21 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.3rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   text-decoration: none;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: transform 0.15s ease;
+  color: var(--ink, #0B1220);
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .event-badge:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent, #f97316);
+  box-shadow: 0 3px 8px rgba(249, 115, 22, 0.15);
 }
 
 .badge-dot {

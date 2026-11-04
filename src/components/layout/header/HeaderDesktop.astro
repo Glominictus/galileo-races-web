@@ -1,0 +1,135 @@
+---
+import type { RaceSummary } from '@/lib/race-portal/types';
+import RaceSearch from '@/components/races/RaceSearch';
+import { RiMedalLine } from "react-icons/ri";
+import { MdOutlineAccountCircle } from "react-icons/md";
+
+export interface NavItem {
+  href: string;
+  label: string;
+  icon?: string;
+  isMedal?: boolean;
+  active: boolean;
+}
+
+interface Props {
+  items: RaceSummary[];
+  nav: NavItem[];
+  isLoggedIn: boolean;
+  accountLabel: string;
+  accountHref: string;
+}
+
+const { items, nav, isLoggedIn, accountLabel, accountHref } = Astro.props;
+const provinces = [...new Set(items.map((r) => r.province))].filter(Boolean).sort();
+---
+
+<header class="site-header site-header--desktop" id="site-header-desktop">
+  <div class="site-header__container">
+    <!-- Logo -->
+    <a class="wordmark" href="/" aria-label="PULSO, inicio">
+      PULSO<span>.</span>
+    </a>
+
+    <!-- Buscador para escritorio -->
+    <div class="site-header__search-desktop">
+      <RaceSearch races={items} client:load />
+    </div>
+
+    <!-- Navegación para escritorio -->
+    <nav class="site-header__nav-desktop" aria-label="Navegación principal">
+      {
+        nav.map((item) => (
+          <a class:list={[{ active: item.active }, 'nav-item']} href={item.href}>
+            <span class="nav-icon">
+              {item.isMedal ? <RiMedalLine /> : item.icon && <Fragment set:html={item.icon} />}
+            </span>
+            <span>{item.label}</span>
+          </a>
+        ))
+      }
+      <a class:list={['nav-account', { 'nav-account--logged-in': isLoggedIn }]} href={accountHref}>
+        <span class="nav-account__icon" aria-hidden="true">
+          <MdOutlineAccountCircle />
+        </span>
+        <span class="nav-account__label">{accountLabel}</span>
+        {isLoggedIn && <span class="nav-account__chevron" aria-hidden="true">›</span>}
+      </a>
+    </nav>
+  </div>
+
+  <!-- Sub-barra de Filtros Rápidos (Opción A) -->
+  <div class="site-header__subbar">
+    <div class="site-header__subbar-container">
+      <form class="header-filters-form" action="/carreras" method="GET">
+        <!-- Distancia -->
+        <div class="header-filter-field">
+          <label for="header-dist">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>Distancia</span>
+          </label>
+          <select id="header-dist" name="distance">
+            <option value="">Todas las distancias</option>
+            <option value="5">5 Km</option>
+            <option value="10">10 Km</option>
+            <option value="15">15 Km</option>
+            <option value="21">21 Km</option>
+            <option value="42">42 Km</option>
+          </select>
+        </div>
+
+        <!-- Provincia -->
+        <div class="header-filter-field">
+          <label for="header-prov">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>Provincia</span>
+          </label>
+          <select id="header-prov" name="province">
+            <option value="">Todas las provincias</option>
+            {provinces.map((prov) => (
+              <option value={prov}>{prov}</option>
+            ))}
+          </select>
+        </div>
+
+        <!-- Terreno -->
+        <div class="header-filter-field">
+          <label for="header-type">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="12 2 2 22 22 22"></polygon>
+            </svg>
+            <span>Terreno</span>
+          </label>
+          <select id="header-type" name="type">
+            <option value="">Todos los terrenos</option>
+            <option value="asfalto">Asfalto</option>
+            <option value="trail">Trail</option>
+            <option value="andaina">Andaina</option>
+          </select>
+        </div>
+
+        <!-- Botón Buscar carreras -->
+        <button type="submit" class="header-filters-submit">
+          <span>Buscar carreras</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<style>
+  @media (max-width: 768px) {
+    .site-header--desktop {
+      display: none !important;
+    }
+  }
+</style>

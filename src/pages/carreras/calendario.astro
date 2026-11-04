@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import EventCalendar from "@/components/EventCalendar";
+import EventCalendar from "@/components/races/EventCalendar";
 import { getRacePortalClient } from "@/lib/race-portal/index.server";
 
 const { items } = await getRacePortalClient().listRaces();
@@ -25,40 +25,6 @@ const { items } = await getRacePortalClient().listRaces();
 </BaseLayout>
 
 <style>
-  .page-heading {
-    padding: clamp(3rem, 7vw, 7rem) clamp(1.25rem, 5vw, 5rem) 2rem;
-    background: var(--ink, #050707);
-    color: var(--white, #ffffff);
-  }
-
-  .page-heading .section-index {
-    color: #ff6b00;
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-  }
-
-  .page-heading h1 {
-    font-size: clamp(3.5rem, 8vw, 7.5rem) !important;
-    line-height: 0.85 !important;
-    margin: 1.4rem 0 1.5rem !important;
-    letter-spacing: -0.06em !important;
-    color: #ffffff !important; 
-  }
-
-  .page-heading h1 em {
-    font-style: normal !important;
-    color: #ff6b00 !important;
-  }
-
-  .page-heading p {
-    max-width: 38rem;
-    color: #a9aba4;
-    line-height: 1.6;
-    font-size: 1.1rem;
-  }
-
   .calendar-section {
     padding: clamp(2rem, 5vw, 5rem);
     max-width: 82rem;
@@ -69,37 +35,6 @@ const { items } = await getRacePortalClient().listRaces();
      MODO APP MÓVIL SIN SCROLL (<= 768px)
      ========================================================================== */
   @media (max-width: 768px) {
-    :global(body.layout--mobile-app) .page-heading {
-      padding: 0.65rem 1.25rem;
-      flex-shrink: 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    :global(body.layout--mobile-app) .page-heading .section-index {
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-    }
-
-    :global(body.layout--mobile-app) .page-heading h1 {
-      font-size: 1.15rem;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      margin: 0.2rem 0 0;
-      font-weight: 800;
-    }
-
-    :global(body.layout--mobile-app) .page-heading h1 br {
-      display: none;
-    }
-
-    :global(body.layout--mobile-app) .page-heading h1 em {
-      margin-left: 0.25rem;
-    }
-
-    :global(body.layout--mobile-app) .page-heading p {
-      display: none;
-    }
-
     :global(body.layout--mobile-app) .calendar-section {
       padding: 0.65rem 0.85rem;
       margin: 0;
@@ -117,7 +52,8 @@ const { items } = await getRacePortalClient().listRaces();
       border-radius: 12px;
       display: flex;
       flex-direction: column;
-      background: #0f1624;
+      background: #FFFFFF;
+      border: 1px solid var(--line);
     }
 
     :global(body.layout--mobile-app) .calendar-header {
