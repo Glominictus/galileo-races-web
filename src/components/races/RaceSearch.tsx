@@ -1,92 +1,23 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import type { RaceSummary } from '@/lib/race-portal/types';
 import { matchesQuery } from '@/lib/domain/races/filters';
 
 type RaceSearchProps = {
   races: RaceSummary[];
-  isCatalogPage?: boolean;
 };
 
-export default function RaceSearch({ races, isCatalogPage = false }: RaceSearchProps) {
+export default function RaceSearch({ races }: RaceSearchProps) {
   const [query, setQuery] = useState('');
-  const [onCatalog, setOnCatalog] = useState(isCatalogPage);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const isCat = window.location.pathname === '/carreras' || window.location.pathname === '/carreras/';
-    setOnCatalog(isCat);
-
-    // Inicializar el input si ya hay una búsqueda en los parámetros de la URL
-    if (isCat) {
-      const params = new URLSearchParams(window.location.search);
-      const q = params.get('query');
-      if (q) setQuery(q);
-    }
-
-    // Escuchar si desde la página de catálogo se borra o cambia la búsqueda
-    const handleCatalogReset = (e: Event) => {
-      const customEvent = e as CustomEvent<{ query?: string }>;
-      if (customEvent.detail && typeof customEvent.detail.query === 'string') {
-        setQuery(customEvent.detail.query);
-      } else {
-        setQuery('');
-      }
-    };
-
-    window.addEventListener('pulso:catalog-query-change', handleCatalogReset);
-    return () => {
-      window.removeEventListener('pulso:catalog-query-change', handleCatalogReset);
-    };
-  }, []);
 
   const results = useMemo(() => {
     const term = query.trim();
-    if (!term || onCatalog) return [];
+    if (!term) return [];
     return races.filter((race) => matchesQuery(race, term));
-  }, [races, query, onCatalog]);
-
-  const handleInputChange = (val: string) => {
-    setQuery(val);
-
-    if (onCatalog) {
-      // 1. Notificar en tiempo real al catálogo para filtrar las tarjetas
-      window.dispatchEvent(
-        new CustomEvent('pulso:search', {
-          detail: { query: val },
-        })
-      );
-
-      // 2. Sincronizar URL sin recargar la página
-      if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href);
-        if (val.trim()) {
-          url.searchParams.set('query', val.trim());
-        } else {
-          url.searchParams.delete('query');
-        }
-        window.history.replaceState({}, '', url.toString());
-      }
-    }
-  };
-
-  const handleClear = () => {
-    handleInputChange('');
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!onCatalog && query.trim()) {
-      window.location.href = `/carreras?query=${encodeURIComponent(query.trim())}`;
-    }
-  };
-
-  const placeholder = onCatalog
-    ? 'Filtrar carreras por nombre o concello…'
-    : 'Buscar carrera, ciudad, distancia…';
+  }, [races, query]);
 
   return (
     <div className="header-search">
-      <form className="search-box" onSubmit={handleSubmit} role="search">
+      <div className="search-box">
         <svg
           className="search-box__icon"
           viewBox="0 0 24 24"
@@ -99,26 +30,25 @@ export default function RaceSearch({ races, isCatalogPage = false }: RaceSearchP
         <input
           type="text"
           className="search-box__input"
-          placeholder={placeholder}
-          aria-label={onCatalog ? 'Filtrar catálogo de carreras' : 'Buscar carrera'}
+          placeholder="Buscar carrera, ciudad, distancia..."
+          aria-label="Buscar carrera"
           value={query}
-          onChange={(event) => handleInputChange(event.target.value)}
+          onChange={(event) => setQuery(event.target.value)}
         />
 
         {query && (
           <button
             type="button"
             className="search-box__clear"
-            onClick={handleClear}
+            onClick={() => setQuery('')}
             aria-label="Limpiar búsqueda"
-            title="Limpiar búsqueda"
           >
             ✕
           </button>
         )}
-      </form>
+      </div>
 
-      {!onCatalog && query.trim() && (
+      {query.trim() && (
         <div className="search-results">
           {results.length > 0 ? (
             <div className="search-results__list">
