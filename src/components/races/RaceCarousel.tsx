@@ -1,28 +1,22 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import type { RaceSummary } from '@/lib/race-portal/types';
 import { formatMoney, formatShortDate, statusCopy } from '@/lib/format';
+import RaceCountdown from '@/components/races/RaceCountdown';
+import { isRaceOpen } from '@/lib/domain/races/filters';
 
 interface Props {
   races: RaceSummary[];
 }
 
-interface TimeRemaining {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  isExpired: boolean;
-}
-
 export default function RaceCarousel({ races = [] }: Props) {
   const activeRaces = useMemo(() => {
-    return races.filter((race) => race.status !== 'closed');
+    const now = Date.now();
+    return races.filter((race) => isRaceOpen(race, now));
   }, [races]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(null);
 
   // Swipe support refs
   const touchStartX = useRef<number | null>(null);
@@ -61,39 +55,6 @@ export default function RaceCarousel({ races = [] }: Props) {
     }, 6000);
     return () => clearInterval(interval);
   }, [isPaused, validIndex, activeRaces.length, isFading]);
-
-  // Countdown timer
-  useEffect(() => {
-    if (!currentRace?.startsAt) {
-      setTimeRemaining(null);
-      return;
-    }
-
-    const targetTime = new Date(currentRace.startsAt).getTime();
-    if (isNaN(targetTime)) {
-      setTimeRemaining(null);
-      return;
-    }
-
-    const updateCountdown = () => {
-      const difference = targetTime - Date.now();
-      if (difference <= 0) {
-        setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true });
-        return;
-      }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((difference / (1000 * 60)) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
-
-      setTimeRemaining({ days, hours, minutes, seconds, isExpired: false });
-    };
-
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
-    return () => clearInterval(timer);
-  }, [validIndex, currentRace]);
 
   if (!activeRaces || activeRaces.length === 0 || !currentRace) {
     return (
@@ -197,47 +158,7 @@ export default function RaceCarousel({ races = [] }: Props) {
         </div>
 
         <div className="next-race__content-bottom">
-          {/* Bloque Deportivo Countdown */}
-          <div className="next-race__countdown-box">
-            <span className="next-race__countdown-title">Cuenta atrás para la salida</span>
-            {timeRemaining ? (
-              timeRemaining.isExpired ? (
-                <div className="next-race__timer-live">¡Prueba en curso!</div>
-              ) : (
-                <div className="next-race__timer-grid" role="timer" aria-live="off">
-                  <div className="next-race__timer-card">
-                    <strong className="next-race__timer-number">
-                      {String(timeRemaining.days).padStart(2, '0')}
-                    </strong>
-                    <span className="next-race__timer-unit">Días</span>
-                  </div>
-                  <span className="next-race__timer-sep" aria-hidden="true">:</span>
-                  <div className="next-race__timer-card">
-                    <strong className="next-race__timer-number">
-                      {String(timeRemaining.hours).padStart(2, '0')}
-                    </strong>
-                    <span className="next-race__timer-unit">Horas</span>
-                  </div>
-                  <span className="next-race__timer-sep" aria-hidden="true">:</span>
-                  <div className="next-race__timer-card">
-                    <strong className="next-race__timer-number">
-                      {String(timeRemaining.minutes).padStart(2, '0')}
-                    </strong>
-                    <span className="next-race__timer-unit">Min</span>
-                  </div>
-                  <span className="next-race__timer-sep" aria-hidden="true">:</span>
-                  <div className="next-race__timer-card">
-                    <strong className="next-race__timer-number">
-                      {String(timeRemaining.seconds).padStart(2, '0')}
-                    </strong>
-                    <span className="next-race__timer-unit">Seg</span>
-                  </div>
-                </div>
-              )
-            ) : (
-              <div className="next-race__timer-loading">Calculando cuenta atrás...</div>
-            )}
-          </div>
+          <RaceCountdown targetDate={currentRace.startsAt} className="next-race__countdown" />
 
           {/* Acciones y Controles de navegación */}
           <div className="next-race__actions">

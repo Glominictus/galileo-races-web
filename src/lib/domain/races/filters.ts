@@ -51,3 +51,26 @@ export function filterRaces(races: RaceSummary[], criteria: RaceFilterCriteria =
     return true;
   });
 }
+
+/**
+ * Barrera de validación: Determina si una carrera está abierta y disponible para participar:
+ * 1. Su estado formal debe ser 'open' (descarta 'closed', 'sold-out' y 'upcoming').
+ * 2. Su fecha de celebración debe ser futura (startsAt > now).
+ * 3. Si tiene fecha límite de inscripción (registrationEndsAt), tampoco debe haber vencido.
+ */
+export function isRaceOpen(
+  race: Pick<RaceSummary, 'status' | 'startsAt'> & Partial<Pick<RaceSummary, 'registrationEndsAt'>>,
+  now: number = Date.now()
+): boolean {
+  if (race.status !== 'open') return false;
+
+  const startsAt = new Date(race.startsAt).getTime();
+  if (Number.isNaN(startsAt) || startsAt <= now) return false;
+
+  if (race.registrationEndsAt) {
+    const regEndsAt = new Date(race.registrationEndsAt).getTime();
+    if (!Number.isNaN(regEndsAt) && regEndsAt <= now) return false;
+  }
+
+  return true;
+}

@@ -40,28 +40,6 @@
   color: var(--accent);
 }
 
-.catalog-title-bar__meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.35rem 0.8rem;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-}
-
-.catalog-badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 6px rgba(249, 115, 22, 0.6);
-}
-
 /* ==========================================================================
    SECCIÓN DEL CATÁLOGO
    ========================================================================== */
@@ -69,10 +47,6 @@
 .catalog-section {
   padding: clamp(0.75rem, 1.5vw, 1.25rem) 0 clamp(3rem, 6vw, 6rem);
 }
-
-/* ==========================================================================
-   CATÁLOGO & FILTROS
-   ========================================================================== */
 
 /* ==========================================================================
    BARRA DE FILTROS STICKY (PANEL COMPLETO)
@@ -554,16 +528,11 @@
   .catalog-title-bar h1 {
     font-size: 1.35rem;
   }
-
-  .catalog-title-bar__meta {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.65rem;
-  }
 }
 
 @media (max-width: 850px) {
   .catalog-sticky-bar {
-    top: 64px;
+    top: var(--header, 84px);
     padding: 0.5rem 0;
     margin: -0.5rem 0 0.35rem;
   }

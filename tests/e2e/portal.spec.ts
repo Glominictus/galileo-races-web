@@ -9,8 +9,8 @@ test('home presents the editorial proposition and featured races', async ({ page
 
 test('catalog filters races without importing fixtures in the island', async ({ page }) => {
   await page.goto('/carreras');
-  await page.getByLabel('Terreno').selectOption('trail');
-  await expect(page.getByText('1 pruebas encontradas')).toBeVisible();
+  await page.getByRole('button', { name: /Trail/i }).click();
+  await expect(page.getByText('1 prueba encontrada')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Trail Serra do Courel' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Media Maratón de Maceda' })).toHaveCount(0);
 });
@@ -18,7 +18,7 @@ test('catalog filters races without importing fixtures in the island', async ({ 
 test('race detail includes structured event data and closed state', async ({ page }) => {
   await page.goto('/carreras/trail-serra-do-courel-2026');
   await expect(page.getByRole('heading', { name: 'Trail Serra do Courel', level: 1 })).toBeVisible();
-  await expect(page.getByText('Plazas agotadas').first()).toBeVisible();
+  await expect(page.getByText(/Prueba finalizada|Plazas agotadas/).first()).toBeVisible();
   expect(await page.locator('script[type="application/ld+json"]').textContent()).toContain('SportsEvent');
 });
 

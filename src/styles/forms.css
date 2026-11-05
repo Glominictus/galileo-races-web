@@ -19,7 +19,6 @@
   font-weight: 500;
 }
 
-.check-field input,
 .legal-check input {
   accent-color: var(--ink);
   width: 1rem;

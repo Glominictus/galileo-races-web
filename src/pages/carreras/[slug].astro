@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import RaceCountdown from "@/components/races/RaceCountdown";
 import { getRacePortalClient } from "@/lib/race-portal/index.server";
 import { RacePortalError } from "@/lib/race-portal/client";
 import { formatDate, formatMoney, statusCopy } from "@/lib/format";
@@ -19,14 +20,41 @@ const hasOpen = race.modalities.some((item) => item.status === "open");
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || Astro.url.origin;
 const jsonLd = buildRaceJsonLd(race, siteUrl);
 
-// Fecha amigable capitalizada
-const rawFullDate = formatDate(race.startsAt, {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-const fullDate = rawFullDate.charAt(0).toUpperCase() + rawFullDate.slice(1);
+// Fecha límite de inscripción
+const registrationDeadline = race.registrationEndsAt
+  ? formatDate(race.registrationEndsAt, {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  : null;
+
+// Modo prueba finalizada: por parámetro (?finalizada=1), por estado cerrado o si la fecha es pasada
+const isFinished =
+  Astro.url.searchParams.has("finalizada") ||
+  race.status === "closed" ||
+  (race.startsAt ? new Date(race.startsAt).getTime() < Date.now() : false);
+
+// Datos simulados para la vista de resultados (sin modificar backend)
+const mockResults = {
+  finishersCount: 684,
+  participationPercent: 91,
+  maleWinner: {
+    name: "Alejandro Fernández",
+    time: "01:07:45",
+    club: "Ourense Atletismo",
+    pace: "3:12 min/km",
+  },
+  femaleWinner: {
+    name: "Begoña Domínguez",
+    time: "01:18:22",
+    club: "Club Atletismo Santiago",
+    pace: "3:42 min/km",
+  },
+  categoriesPdfUrl: "#",
+  generalPdfUrl: "#",
+};
 
 // URL de direcciones para Google Maps
 const mapsUrl =
@@ -65,10 +93,6 @@ function getServiceIconType(name: string) {
           <span>Todas las carreras</span>
         </a>
         <span class="race-breadcrumb__separator">/</span>
-        <a href={`/carreras?province=${encodeURIComponent(race.province)}`} class="race-breadcrumb__link">
-          {race.province}
-        </a>
-        <span class="race-breadcrumb__separator">/</span>
         <span class="race-breadcrumb__current" aria-current="page">{race.name}</span>
       </nav>
 
@@ -84,51 +108,50 @@ function getServiceIconType(name: string) {
 
         <div class="race-hero-banner__top">
           <div class="race-hero-banner__badges">
-            <div class:list={["card-status", `card-status--${race.status}`]}>
-              <span class="card-status__dot"></span>
-              <span class="card-status__label">{statusCopy[race.status] || race.status}</span>
-            </div>
+            {!isFinished ? (
+              <div class:list={["card-status", `card-status--${race.status}`]}>
+                <span class="card-status__dot"></span>
+                <span class="card-status__label">{statusCopy[race.status] || race.status}</span>
+              </div>
+            ) : (
+              <div class="card-status card-status--closed">
+                <span class="card-status__dot"></span>
+                <span class="card-status__label">Prueba finalizada</span>
+              </div>
+            )}
             <span class="card-badge card-badge--type">{race.type}</span>
           </div>
 
-          {race.featured && (
-            <span class="badge-featured-star">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="none" aria-hidden="true">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          <div class="race-hero-banner__actions">
+            {race.featured && (
+              <span class="badge-featured-star">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="none" aria-hidden="true">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <span>Destacada</span>
+              </span>
+            )}
+
+            <button
+              type="button"
+              class="hero-zoom-button"
+              id="open-hero-lightbox"
+              aria-label="Ver imagen completa de la carrera"
+              title="Ampliar imagen"
+            >
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
               </svg>
-              <span>Destacada</span>
-            </span>
-          )}
+              <span>Ampliar foto</span>
+            </button>
+          </div>
         </div>
 
         <div class="race-hero-banner__bottom">
           <h1 class="race-hero-banner__headline">{race.name}</h1>
-          <div class="race-hero-banner__meta-row">
-            <span class="hero-meta-chip">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-              <span>{fullDate}</span>
-            </span>
-
-            <span class="hero-meta-chip">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-              <span>{race.city} · {race.province}</span>
-            </span>
-
-            <span class="hero-meta-chip">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
-              </svg>
-              <span>{race.distanceLabel}</span>
-            </span>
-          </div>
         </div>
       </header>
 
@@ -178,13 +201,24 @@ function getServiceIconType(name: string) {
 
         <div class="stat-box">
           <div class="stat-box__icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
+            {!isFinished ? (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            )}
           </div>
           <div class="stat-box__content">
-            <span class="stat-box__label">Tarifa oficial</span>
-            <strong class="stat-box__value">Desde {formatMoney(race.priceFrom)}</strong>
+            <span class="stat-box__label">{!isFinished ? "Tarifa oficial" : "Llegados a meta"}</span>
+            <strong class="stat-box__value">
+              {!isFinished ? `Desde ${formatMoney(race.priceFrom)}` : `${mockResults.finishersCount} finishers`}
+            </strong>
           </div>
         </div>
       </section>
@@ -192,157 +226,229 @@ function getServiceIconType(name: string) {
       <!-- Layout Principal en 2 Columnas -->
       <div class="race-layout-grid">
         <!-- Columna Izquierda: Contenido y Secciones -->
-        <main class="race-main-content">
-          <!-- 01 — La Prueba -->
-          <section class="race-section" id="resumen">
-            <div class="race-section__header">
-              <span class="section-index">01 — La prueba</span>
-              <h2>Sobre la carrera</h2>
-            </div>
-            <p class="race-lead-text">{race.description}</p>
+        <div class="race-main-content">
+          {!isFinished ? (
+            <section class="race-section" id="modalidades">
+              <div class="race-section__header">
+                <span class="section-index">01 — Modalidades oficiales</span>
+                <h2>Recorridos y tarifas</h2>
+              </div>
 
-            <div class="race-highlights-tags">
-              <span class="highlight-pill">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                </svg>
-                Organiza: <strong>{race.organizer.name}</strong>
-              </span>
+              <div class="modality-cards-list">
+                {race.modalities.map((item) => {
+                  const totalPlaces = item.capacity || 0;
+                  const available = item.availablePlaces ?? 0;
+                  const taken = totalPlaces > 0 ? Math.max(0, totalPlaces - available) : 0;
+                  const percent = totalPlaces > 0 ? Math.min(100, Math.round((taken / totalPlaces) * 100)) : 0;
+                  const isUrgent = item.status === 'open' && available > 0 && (available < 50 || percent >= 80);
 
-              <span class="highlight-pill">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                  <polyline points="2 17 12 22 22 17"></polyline>
-                  <polyline points="2 12 12 17 22 12"></polyline>
-                </svg>
-                Terreno: <strong>{race.type}</strong>
-              </span>
-
-              <span class="highlight-pill">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                Cronometraje oficial Galileo
-              </span>
-            </div>
-          </section>
-
-          <!-- 02 — Modalidades y Tarifas -->
-          <section class="race-section" id="modalidades">
-            <div class="race-section__header">
-              <span class="section-index">02 — Modalidades oficiales</span>
-              <h2>Recorridos y tarifas</h2>
-              <p>Plazas limitadas con cronometraje y dorsal garantizados.</p>
-            </div>
-
-            <div class="modality-cards-list">
-              {race.modalities.map((item, index) => {
-                const totalPlaces = item.capacity || 0;
-                const available = item.availablePlaces ?? 0;
-                const taken = totalPlaces > 0 ? Math.max(0, totalPlaces - available) : 0;
-                const percent = totalPlaces > 0 ? Math.min(100, Math.round((taken / totalPlaces) * 100)) : 0;
-                const isUrgent = item.status === 'open' && available > 0 && (available < 50 || percent >= 80);
-
-                return (
-                  <article class:list={["modality-card", { "modality-card--sold-out": item.status === 'sold-out' || item.status === 'closed' }]}>
-                    <div class="modality-card__header">
-                      <div class="modality-card__main-info">
-                        <div class="modality-badge-dist">
-                          {item.distanceKm.toLocaleString("es-ES")}
-                          <small>km</small>
+                  return (
+                    <article class:list={["modality-card", { "modality-card--sold-out": item.status === 'sold-out' || item.status === 'closed' }]}>
+                      <div class="modality-card__header">
+                        <div class="modality-card__main-info">
+                          <div class="modality-badge-dist">
+                            {item.distanceKm.toLocaleString("es-ES")}
+                            <small>km</small>
+                          </div>
+                          <div class="modality-card__titles">
+                            <h3>{item.name}</h3>
+                            <p>
+                              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                              </svg>
+                              Salida a las {formatDate(item.startAt, { hour: "2-digit", minute: "2-digit" })} h
+                            </p>
+                          </div>
                         </div>
-                        <div class="modality-card__titles">
-                          <h3>{item.name}</h3>
-                          <p>
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                              <circle cx="12" cy="12" r="10"></circle>
-                              <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            Salida a las {formatDate(item.startAt, { hour: "2-digit", minute: "2-digit" })} h
-                          </p>
+
+                        <div class="modality-card__state">
+                          <span class:list={["card-status", `card-status--${item.status}`]}>
+                            <span class="card-status__dot"></span>
+                            <span class="card-status__label">{statusCopy[item.status] || item.status}</span>
+                          </span>
                         </div>
                       </div>
 
-                      <div class="modality-card__state">
-                        <span class:list={["card-status", `card-status--${item.status}`]}>
-                          <span class="card-status__dot"></span>
-                          <span class="card-status__label">{statusCopy[item.status] || item.status}</span>
-                        </span>
-                      </div>
-                    </div>
+                      <!-- Disponibilidad y Aforo con barra visual -->
+                      <div class="modality-occupancy">
+                        <div class="modality-occupancy__meta">
+                          <span class="occupancy-places">
+                            {item.status === 'open' ? (
+                              <>
+                                <strong>{available}</strong> de {totalPlaces} plazas disponibles
+                              </>
+                            ) : (
+                              <span>Plazas agotadas para este dorsal</span>
+                            )}
+                          </span>
 
-                    <!-- Disponibilidad y Aforo con barra visual -->
-                    <div class="modality-occupancy">
-                      <div class="modality-occupancy__meta">
-                        <span class="occupancy-places">
-                          {item.status === 'open' ? (
-                            <>
-                              <strong>{available}</strong> de {totalPlaces} plazas disponibles
-                            </>
-                          ) : (
-                            <span>Plazas agotadas para este dorsal</span>
+                          {isUrgent && (
+                            <span class="occupancy-tag occupancy-tag--urgent">
+                              ¡Últimas plazas!
+                            </span>
                           )}
-                        </span>
+                          {!isUrgent && item.status === 'open' && (
+                            <span class="occupancy-tag occupancy-tag--open">
+                              {percent}% completo
+                            </span>
+                          )}
+                          {item.status !== 'open' && (
+                            <span class="occupancy-tag occupancy-tag--sold-out">
+                              Agotado
+                            </span>
+                          )}
+                        </div>
 
-                        {isUrgent && (
-                          <span class="occupancy-tag occupancy-tag--urgent">
-                            ¡Últimas plazas!
-                          </span>
-                        )}
-                        {!isUrgent && item.status === 'open' && (
-                          <span class="occupancy-tag occupancy-tag--open">
-                            {percent}% completo
-                          </span>
-                        )}
-                        {item.status !== 'open' && (
-                          <span class="occupancy-tag occupancy-tag--sold-out">
-                            Agotado
-                          </span>
-                        )}
+                        <div class="occupancy-bar-track" aria-hidden="true">
+                          <div
+                            class="occupancy-bar-fill"
+                            style={`width: ${item.status === 'open' ? percent : 100}%; background: ${item.status !== 'open' ? '#94a3b8' : undefined}`}
+                          ></div>
+                        </div>
                       </div>
 
-                      <div class="occupancy-bar-track" aria-hidden="true">
-                        <div
-                          class="occupancy-bar-fill"
-                          style={`width: ${item.status === 'open' ? percent : 100}%; background: ${item.status !== 'open' ? '#94a3b8' : undefined}`}
-                        ></div>
+                      <!-- Pie de tarjeta con precio y botón de inscripción directa -->
+                      <div class="modality-card__footer">
+                        <div class="modality-price-box">
+                          <span>Desde</span>
+                          <strong>{formatMoney(item.priceFrom)}</strong>
+                        </div>
+
+                        {item.status === 'open' ? (
+                          <a
+                            class="button button--accent"
+                            href={`/inscripcion/${race.slug}?modality=${item.id}`}
+                          >
+                            <span>Inscribirme en {item.name}</span>
+                            <span aria-hidden="true">→</span>
+                          </a>
+                        ) : (
+                          <button disabled class="button button--disabled">
+                            <span>Plazas agotadas</span>
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          ) : (
+            <section class="race-section" id="clasificaciones">
+              <div class="race-section__header">
+                <span class="section-index">01 — Resultados oficiales</span>
+                <h2>Cuadro de honor y clasificaciones</h2>
+              </div>
+
+              <!-- Cuadro de Honor / Podio -->
+              <div class="podium-highlight-card">
+                <div class="podium-highlight-header">
+                  <div class="podium-trophy-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="8" r="7"></circle>
+                      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>Podio Absoluto de la Edición</h3>
+                    <p>Ganadores oficiales validados por el comité de cronometraje</p>
+                  </div>
+                </div>
+
+                <div class="podium-grid">
+                  <!-- Ganador Masculino -->
+                  <div class="podium-item">
+                    <span class="podium-badge podium-badge--gold">🥇 1º Masculino</span>
+                    <strong class="podium-runner-name">{mockResults.maleWinner.name}</strong>
+                    <span class="podium-runner-club">{mockResults.maleWinner.club}</span>
+                    <div class="podium-runner-meta">
+                      <span class="podium-time">{mockResults.maleWinner.time}</span>
+                      <span class="podium-pace">{mockResults.maleWinner.pace}</span>
+                    </div>
+                  </div>
+
+                  <!-- Ganadora Femenina -->
+                  <div class="podium-item">
+                    <span class="podium-badge podium-badge--gold">🥇 1ª Femenina</span>
+                    <strong class="podium-runner-name">{mockResults.femaleWinner.name}</strong>
+                    <span class="podium-runner-club">{mockResults.femaleWinner.club}</span>
+                    <div class="podium-runner-meta">
+                      <span class="podium-time">{mockResults.femaleWinner.time}</span>
+                      <span class="podium-pace">{mockResults.femaleWinner.pace}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Listado de Modalidades con acceso a clasificaciones completas -->
+              <div class="finished-modalities-grid">
+                {race.modalities.map((item) => (
+                  <article class="finished-modality-card">
+                    <div class="finished-modality-header">
+                      <div class="modality-badge-dist">
+                        {item.distanceKm.toLocaleString("es-ES")}
+                        <small>km</small>
+                      </div>
+                      <div class="finished-modality-titles">
+                        <h4>{item.name}</h4>
+                        <span class="finished-tag">Resultados validados</span>
                       </div>
                     </div>
 
-                    <!-- Pie de tarjeta con precio y botón de inscripción directa -->
-                    <div class="modality-card__footer">
-                      <div class="modality-price-box">
-                        <span>Desde</span>
-                        <strong>{formatMoney(item.priceFrom)}</strong>
-                      </div>
-
-                      {item.status === 'open' ? (
-                        <a
-                          class="button button--accent"
-                          href={`/inscripcion/${race.slug}?modality=${item.id}`}
-                        >
-                          <span>Inscribirme en {item.name}</span>
-                          <span aria-hidden="true">→</span>
-                        </a>
-                      ) : (
-                        <button disabled class="button button--disabled">
-                          <span>Plazas agotadas</span>
-                        </button>
-                      )}
+                    <div class="finished-modality-actions">
+                      <a href={`/carreras/${race.slug}/clasificaciones`} class="button button--dark" style="font-size: 0.85rem; padding: 0.65rem 1.1rem;">
+                        <span>Ver clasificación completa ↗</span>
+                      </a>
+                      <a href={mockResults.categoriesPdfUrl} class="button button--ghost" style="font-size: 0.85rem; padding: 0.65rem 1rem;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                          <polyline points="7 10 12 15 17 10"></polyline>
+                          <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <span>PDF por categorías</span>
+                      </a>
                     </div>
                   </article>
-                );
-              })}
-            </div>
-          </section>
+                ))}
+              </div>
 
-          <!-- 03 — Programa de la Jornada (Timeline) -->
+              <!-- Buscador de Dorsal Individual -->
+              <div class="dorsal-search-box" id="buscar-dorsal">
+                <div class="dorsal-search-box__info">
+                  <div class="dorsal-search-box__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4>Consulta tu tiempo individual y diploma</h4>
+                    <p>Introduce tu dorsal para acceder a tu tiempo neto, ritmo y diploma oficial de finisher.</p>
+                  </div>
+                </div>
+
+                <form class="dorsal-search-form" id="dorsal-search-form">
+                  <input
+                    type="text"
+                    placeholder="Introduce tu nº de dorsal (ej. 248)"
+                    class="dorsal-input"
+                    aria-label="Número de dorsal"
+                  />
+                  <button type="submit" class="button button--accent">
+                    <span>Buscar resultado</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                </form>
+              </div>
+            </section>
+          )}
+
+          <!-- 02 — Programa de la Jornada (Timeline) -->
           {race.schedule && race.schedule.length > 0 && (
             <section class="race-section" id="horario">
               <div class="race-section__header">
-                <span class="section-index">03 — Horarios clave</span>
+                <span class="section-index">02 — Horarios clave</span>
                 <h2>Programa de la jornada</h2>
                 <p>Planifica tu llegada con antelación para recoger el dorsal sin prisas.</p>
               </div>
@@ -359,11 +465,11 @@ function getServiceIconType(name: string) {
             </section>
           )}
 
-          <!-- 04 — Servicios Incluidos -->
+          <!-- 03 — Servicios Incluidos -->
           {race.included && race.included.length > 0 && (
             <section class="race-section" id="servicios">
               <div class="race-section__header">
-                <span class="section-index">04 — Tu inscripción incluye</span>
+                <span class="section-index">03 — Tu inscripción incluye</span>
                 <h2>Servicios al corredor</h2>
                 <p>Todo lo que la organización pone a tu disposición con tu dorsal oficial.</p>
               </div>
@@ -423,10 +529,10 @@ function getServiceIconType(name: string) {
             </section>
           )}
 
-          <!-- 05 — Localización y Salida -->
+          <!-- 04 — Localización y Salida -->
           <section class="race-section" id="ubicacion">
             <div class="race-section__header">
-              <span class="section-index">05 — Localización</span>
+              <span class="section-index">04 — Localización</span>
               <h2>Punto de salida y meta</h2>
               <p>Conoce la zona de salida, recogida de dorsales y accesos recomendados.</p>
             </div>
@@ -471,10 +577,10 @@ function getServiceIconType(name: string) {
             </div>
           </section>
 
-          <!-- 06 — Reglamento y Organización Oficial -->
+          <!-- 05 — Reglamento y Organización Oficial -->
           <section class="race-section" id="reglamento">
             <div class="race-section__header">
-              <span class="section-index">06 — Información oficial</span>
+              <span class="section-index">05 — Información oficial</span>
               <h2>Organización y normativa</h2>
             </div>
 
@@ -509,101 +615,168 @@ function getServiceIconType(name: string) {
               )}
             </div>
           </section>
-        </main>
+        </div>
 
-        <!-- Columna Derecha: Sticky Sidebar de Conversión (Desktop) -->
-        <aside class="race-sidebar-sticky" aria-label="Resumen de inscripción">
-          <div class="sidebar-checkout-card">
-            <div class="sidebar-checkout-card__header">
-              <span class="sidebar-official-badge">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                Inscripción Oficial
-              </span>
-              <div class:list={["card-status", `card-status--${race.status}`]}>
-                <span class="card-status__dot"></span>
-                <span class="card-status__label">{statusCopy[race.status] || race.status}</span>
+        <!-- Columna Derecha: Sticky Sidebar (Desktop) -->
+        <aside class="race-sidebar-sticky" aria-label={!isFinished ? "Resumen de inscripción" : "Resultados y clasificaciones"}>
+          {!isFinished ? (
+            <div class="sidebar-checkout-card">
+              <div class="sidebar-checkout-card__header">
+                <span class="sidebar-official-badge">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  Inscripción Oficial
+                </span>
+              </div>
+
+              <div class="sidebar-price-row">
+                <span>Tarifa de salida</span>
+                <strong>{formatMoney(race.priceFrom)}</strong>
+              </div>
+
+              <!-- Cuenta atrás compartida para la salida -->
+              <RaceCountdown client:load targetDate={race.startsAt} />
+
+              {hasOpen ? (
+                <a
+                  class="button button--accent button--full"
+                  style="padding: 1.1rem 1.4rem; font-size: 1.05rem;"
+                  href={`/inscripcion/${race.slug}`}
+                >
+                  <span>Inscribirme ahora</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              ) : (
+                <div>
+                  <button disabled class="button button--disabled button--full mb-2">
+                    <span>Plazas agotadas</span>
+                  </button>
+                  <a class="button button--dark button--full mt-2" href="/carreras">
+                    <span>Ver otras carreras</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </div>
+              )}
+
+              {registrationDeadline && hasOpen && (
+                <div class="sidebar-deadline-notice">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>Cierre de inscripción: <strong>{registrationDeadline} h</strong></span>
+                </div>
+              )}
+
+              <div class="sidebar-guarantees">
+                <div class="guarantee-item">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Cronometraje oficial con chip verificado</span>
+                </div>
+
+                <div class="guarantee-item">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Asignación inmediata de dorsal oficial</span>
+                </div>
+
+                <div class="guarantee-item">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Pasarela de pago 100% segura (Bizum / Tarjeta)</span>
+                </div>
               </div>
             </div>
-
-            <div class="sidebar-price-row">
-              <span>Tarifa de salida</span>
-              <strong>{formatMoney(race.priceFrom)}</strong>
-            </div>
-
-            <div class="sidebar-summary-list">
-              <div class="sidebar-summary-item">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
-                <span>{fullDate}</span>
+          ) : (
+            <div class="sidebar-results-card">
+              <div class="sidebar-results-card__header">
+                <span class="sidebar-results-badge">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="8" r="7"></circle>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                  </svg>
+                  Resultados Oficiales
+                </span>
+                <span class="card-status card-status--closed">
+                  <span class="card-status__dot"></span>
+                  <span class="card-status__label">Finalizada</span>
+                </span>
               </div>
 
-              <div class="sidebar-summary-item">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-                <span>{race.city} ({race.province})</span>
+              <div class="sidebar-results-stats">
+                <div class="sidebar-results-stat-item">
+                  <span class="results-stat-num">{mockResults.finishersCount}</span>
+                  <span class="results-stat-txt">Llegados a meta ({mockResults.participationPercent}%)</span>
+                </div>
+                <div class="sidebar-results-divider"></div>
+                <div class="sidebar-winners-summary">
+                  <div class="winner-line">
+                    <span class="winner-icon">🥇 Masc:</span>
+                    <strong>{mockResults.maleWinner.name}</strong>
+                    <span class="winner-time">{mockResults.maleWinner.time}</span>
+                  </div>
+                  <div class="winner-line">
+                    <span class="winner-icon">🥇 Fem:</span>
+                    <strong>{mockResults.femaleWinner.name}</strong>
+                    <span class="winner-time">{mockResults.femaleWinner.time}</span>
+                  </div>
+                </div>
               </div>
 
-              <div class="sidebar-summary-item">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
-                </svg>
-                <span>Modalidades: {race.distanceLabel}</span>
-              </div>
-            </div>
+              <div class="sidebar-results-actions">
+                <a
+                  class="button button--accent button--full"
+                  style="padding: 1rem 1.4rem; font-size: 1rem;"
+                  href={`/carreras/${race.slug}/clasificaciones`}
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                  <span>Ver clasificaciones ↗</span>
+                </a>
 
-            {hasOpen ? (
-              <a
-                class="button button--accent button--full"
-                style="padding: 1.1rem 1.4rem; font-size: 1.05rem;"
-                href={`/inscripcion/${race.slug}`}
-              >
-                <span>Inscribirme ahora</span>
-                <span aria-hidden="true">→</span>
-              </a>
-            ) : (
-              <div>
-                <button disabled class="button button--disabled button--full mb-2">
-                  <span>Plazas agotadas</span>
-                </button>
-                <a class="button button--dark button--full mt-2" href="/carreras">
-                  <span>Ver otras carreras</span>
+                <a
+                  class="button button--dark button--full"
+                  style="padding: 0.85rem 1.2rem; font-size: 0.92rem;"
+                  href="#buscar-dorsal"
+                >
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <span>Buscar mi tiempo / Diploma</span>
+                </a>
+              </div>
+
+              <div class="sidebar-next-edition-box">
+                <div class="next-edition-header">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <strong>Próxima edición</strong>
+                </div>
+                <p>Las inscripciones para la edición 2027 abrirán próximamente. Explora el calendario para preparar tus siguientes pruebas.</p>
+                <a href="/carreras" class="button button--ghost button--full" style="font-size: 0.82rem; padding: 0.55rem 0.85rem;">
+                  <span>Ver carreras activas</span>
                   <span aria-hidden="true">→</span>
                 </a>
               </div>
-            )}
-
-            <div class="sidebar-guarantees">
-              <div class="guarantee-item">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Cronometraje oficial con chip verificado</span>
-              </div>
-
-              <div class="guarantee-item">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Asignación inmediata de dorsal oficial</span>
-              </div>
-
-              <div class="guarantee-item">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Pasarela de pago 100% segura (Bizum / Tarjeta)</span>
-              </div>
             </div>
-          </div>
+          )}
 
           <div class="sidebar-organizer-box">
             <div class="sidebar-organizer-icon" aria-hidden="true">
@@ -623,7 +796,7 @@ function getServiceIconType(name: string) {
   </div>
 
   <!-- Barra Flotante Inferior para Móviles -->
-  {hasOpen && (
+  {!isFinished && hasOpen && (
     <aside class="mobile-sticky-bar" aria-label="Inscripción directa">
       <div class="mobile-sticky-bar__details">
         <span class="mobile-sticky-bar__label">Inscripción oficial</span>
@@ -637,4 +810,100 @@ function getServiceIconType(name: string) {
       </a>
     </aside>
   )}
+
+  {isFinished && (
+    <aside class="mobile-sticky-bar" aria-label="Resultados oficiales">
+      <div class="mobile-sticky-bar__details">
+        <span class="mobile-sticky-bar__label" style="color: #10b981;">Prueba finalizada</span>
+        <span class="mobile-sticky-bar__price">
+          <strong>{mockResults.finishersCount}</strong> finishers
+        </span>
+      </div>
+      <a class="button button--accent mobile-sticky-bar__cta" href={`/carreras/${race.slug}/clasificaciones`}>
+        <span>Clasificaciones ↗</span>
+      </a>
+    </aside>
+  )}
+
+  <!-- Visor Modal de Imagen Completa (Lightbox) -->
+  <dialog id="race-image-dialog" class="race-image-modal" aria-label={`Fotografía de ${race.name}`}>
+    <div class="race-image-modal__container">
+      <button
+        type="button"
+        class="race-image-modal__close"
+        id="close-hero-lightbox"
+        aria-label="Cerrar visor de imagen"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <figure class="race-image-modal__figure">
+        <img
+          src={race.imageUrl}
+          alt={`Fotografía oficial de ${race.name}`}
+          class="race-image-modal__img"
+        />
+        <figcaption class="race-image-modal__caption">
+          <strong>{race.name}</strong>
+          <span>{race.city} ({race.province})</span>
+        </figcaption>
+      </figure>
+    </div>
+  </dialog>
+
+  <script>
+    function setupImageLightbox() {
+      const dialog = document.getElementById('race-image-dialog') as HTMLDialogElement | null;
+      const heroBanner = document.querySelector('.race-hero-banner');
+      const closeBtn = document.getElementById('close-hero-lightbox');
+      const dorsalForm = document.getElementById('dorsal-search-form');
+
+      dorsalForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Búsqueda de dorsal simulada.');
+      });
+
+      if (!dialog) return;
+
+      function openModal() {
+        if (dialog && !dialog.open) {
+          dialog.showModal();
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      function closeModal() {
+        if (dialog && dialog.open) {
+          dialog.close();
+          document.body.style.overflow = '';
+        }
+      }
+
+      heroBanner?.addEventListener('click', () => {
+        openModal();
+      });
+
+      closeBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeModal();
+      });
+
+      dialog.addEventListener('click', (e) => {
+        const container = dialog.querySelector('.race-image-modal__container');
+        if (container && !container.contains(e.target as Node)) {
+          closeModal();
+        }
+      });
+
+      dialog.addEventListener('close', () => {
+        document.body.style.overflow = '';
+      });
+    }
+
+    setupImageLightbox();
+    document.addEventListener('astro:page-load', setupImageLightbox);
+  </script>
 </BaseLayout>

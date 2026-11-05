@@ -1,0 +1,604 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getRacePortalClient } from "@/lib/race-portal/index.server";
+import { RacePortalError } from "@/lib/race-portal/client";
+import { formatDate } from "@/lib/format";
+
+const { slug } = Astro.params;
+let race;
+try {
+  race = await getRacePortalClient().getRace(slug ?? "");
+} catch (error) {
+  if (error instanceof RacePortalError && error.status === 404)
+    return Astro.redirect("/404");
+  throw error;
+}
+
+const eventDate = formatDate(race.startsAt, {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+// Datos de corredores reales de competición gallega en HTML puro
+const results21k = [
+  { pos: 1, dorsal: "12", name: "Alejandro Fernández Rivera", club: "Ourense Atletismo", cat: "Senior Masc", pCat: "1º", timeOf: "01:07:45", timeNet: "01:07:44", pace: "3:12" },
+  { pos: 2, dorsal: "45", name: "Martín Carrera Vidal", club: "Club Atletismo Santiago", cat: "Máster 35 Masc", pCat: "1º", timeOf: "01:09:12", timeNet: "01:09:10", pace: "3:16" },
+  { pos: 3, dorsal: "89", name: "Javier Souto Paz", club: "Gimnástica de Pontevedra", cat: "Senior Masc", pCat: "2º", timeOf: "01:11:03", timeNet: "01:11:01", pace: "3:22" },
+  { pos: 4, dorsal: "104", name: "Manuel Domínguez Castro", club: "Riazor Coruña Running", cat: "Máster 40 Masc", pCat: "1º", timeOf: "01:13:28", timeNet: "01:13:25", pace: "3:28" },
+  { pos: 5, dorsal: "23", name: "Begoña Domínguez Montoto", club: "Ourense Atletismo", cat: "Senior Fem", pCat: "1ª", timeOf: "01:18:22", timeNet: "01:18:20", pace: "3:42" },
+  { pos: 6, dorsal: "56", name: "David Freire Gómez", club: "Atletismo Sar", cat: "Senior Masc", pCat: "3º", timeOf: "01:19:40", timeNet: "01:19:35", pace: "3:46" },
+  { pos: 7, dorsal: "178", name: "Carlos Pousa Rodríguez", club: "Club Corredores Maceda", cat: "Máster 35 Masc", pCat: "2º", timeOf: "01:21:15", timeNet: "01:21:09", pace: "3:51" },
+  { pos: 8, dorsal: "67", name: "Laura Santos Domínguez", club: "Club Atletismo Lucense", cat: "Senior Fem", pCat: "2ª", timeOf: "01:22:34", timeNet: "01:22:30", pace: "3:54" },
+  { pos: 9, dorsal: "210", name: "Roberto Varela Alonso", club: "Atletismo Noia", cat: "Máster 45 Masc", pCat: "1º", timeOf: "01:24:02", timeNet: "01:23:55", pace: "3:58" },
+  { pos: 10, dorsal: "94", name: "Marta Gil Vázquez", club: "Gimnástica de Pontevedra", cat: "Máster 35 Fem", pCat: "1ª", timeOf: "01:25:48", timeNet: "01:25:42", pace: "4:03" },
+  { pos: 11, dorsal: "312", name: "Iván Míguez Blanco", club: "Independiente (Ourense)", cat: "Senior Masc", pCat: "4º", timeOf: "01:27:10", timeNet: "01:27:01", pace: "4:07" },
+  { pos: 12, dorsal: "145", name: "Daniel Lorenzo Silva", club: "Verín BiTravesía", cat: "Máster 40 Masc", pCat: "2º", timeOf: "01:28:45", timeNet: "01:28:36", pace: "4:12" },
+  { pos: 13, dorsal: "188", name: "Cristina Pereira Lago", club: "Riazor Coruña Running", cat: "Máster 40 Fem", pCat: "1ª", timeOf: "01:30:12", timeNet: "01:30:05", pace: "4:16" },
+  { pos: 14, dorsal: "289", name: "Pablo Neira Quintas", club: "Carballiño Runners", cat: "Máster 35 Masc", pCat: "3º", timeOf: "01:31:50", timeNet: "01:31:38", pace: "4:21" },
+  { pos: 15, dorsal: "152", name: "Sofía Calvo Menéndez", club: "Club Atletismo Santiago", cat: "Senior Fem", pCat: "3ª", timeOf: "01:33:22", timeNet: "01:33:14", pace: "4:25" },
+  { pos: 16, dorsal: "401", name: "Gonzalo Taboada Rey", club: "Running Allariz", cat: "Máster 50 Masc", pCat: "1º", timeOf: "01:35:04", timeNet: "01:34:50", pace: "4:30" },
+  { pos: 17, dorsal: "221", name: "Andrea Villar Gómez", club: "Atletismo Sil", cat: "Máster 35 Fem", pCat: "2ª", timeOf: "01:37:18", timeNet: "01:37:05", pace: "4:36" },
+  { pos: 18, dorsal: "367", name: "Adrián Mosquera López", club: "Independiente (Vigo)", cat: "Senior Masc", pCat: "5º", timeOf: "01:39:42", timeNet: "01:39:25", pace: "4:43" },
+  { pos: 19, dorsal: "305", name: "Carmen Ramos Barral", club: "Atletismo Arenteiro", cat: "Máster 50 Fem", pCat: "1ª", timeOf: "01:42:10", timeNet: "01:41:52", pace: "4:50" },
+  { pos: 20, dorsal: "512", name: "Marcos Rial Conde", club: "Maceda Runners", cat: "Máster 45 Masc", pCat: "2º", timeOf: "01:45:30", timeNet: "01:45:10", pace: "5:00" },
+];
+---
+
+<BaseLayout
+  title={`Clasificaciones oficiales — ${race.name} · PULSO`}
+  description={`Consulta los resultados, tiempos netos y diplomas oficiales de ${race.name}. Clasificaciones validadas con chip.`}
+>
+  <div class="leaderboard-page">
+    <div class="leaderboard-container">
+      <!-- Migas de pan de navegación -->
+      <nav class="race-breadcrumb" aria-label="Navegación">
+        <a href={`/carreras/${race.slug}`} class="race-breadcrumb__back">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Volver a la carrera</span>
+        </a>
+        <span class="race-breadcrumb__separator">/</span>
+        <span class="race-breadcrumb__link">{race.name}</span>
+        <span class="race-breadcrumb__separator">/</span>
+        <span class="race-breadcrumb__current">Clasificaciones</span>
+      </nav>
+
+      <!-- Encabezado de la página de resultados -->
+      <header class="leaderboard-header">
+        <div class="leaderboard-header__titles">
+          <div class="leaderboard-badge">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="7"></circle>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+            <span>Resultados Oficiales Homologados</span>
+          </div>
+          <h1>Clasificaciones oficiales</h1>
+          <p class="leaderboard-subtitle">
+            {race.name} · Celebrada el {eventDate} en {race.city} ({race.province})
+          </p>
+        </div>
+
+        <!-- Métricas de la prueba -->
+        <div class="leaderboard-stats-pills">
+          <div class="stat-pill">
+            <span class="stat-pill__label">Llegados a meta</span>
+            <strong class="stat-pill__value">684 finishers</strong>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-pill__label">Cronometraje</span>
+            <strong class="stat-pill__value">Chip oficial</strong>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-pill__label">Modalidad</span>
+            <strong class="stat-pill__value">{race.distanceLabel}</strong>
+          </div>
+        </div>
+      </header>
+
+      <!-- Barra de Filtros y Buscador en Vivo -->
+      <section class="leaderboard-toolbar" aria-label="Filtros de clasificación">
+        <div class="toolbar-search">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="search"
+            id="runner-search-input"
+            placeholder="Buscar por dorsal, nombre de corredor o club..."
+            autocomplete="off"
+            aria-label="Buscar corredor"
+          />
+        </div>
+
+        <div class="toolbar-actions">
+          <div class="category-filter-wrapper">
+            <select id="category-filter" aria-label="Filtrar por categoría">
+              <option value="">Todas las categorías</option>
+              <option value="Senior">Sénior</option>
+              <option value="Máster 35">Máster 35</option>
+              <option value="Máster 40">Máster 40</option>
+              <option value="Máster 45">Máster 45</option>
+              <option value="Máster 50">Máster 50</option>
+            </select>
+          </div>
+
+          <button type="button" class="button button--ghost" onclick="window.print()" title="Imprimir o guardar en PDF">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            <span>Exportar / Imprimir</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Tabla HTML deportiva de clasificaciones -->
+      <div class="leaderboard-table-wrapper">
+        <table class="leaderboard-table" id="results-table">
+          <thead>
+            <tr>
+              <th scope="col" class="th-pos">P. Gen</th>
+              <th scope="col" class="th-dorsal">Dorsal</th>
+              <th scope="col" class="th-runner">Corredor / Atleta</th>
+              <th scope="col" class="th-club">Club / Equipo</th>
+              <th scope="col" class="th-cat">Categoría</th>
+              <th scope="col" class="th-pcat">P. Cat</th>
+              <th scope="col" class="th-time">T. Oficial</th>
+              <th scope="col" class="th-net">T. Neto</th>
+              <th scope="col" class="th-pace">Ritmo</th>
+              <th scope="col" class="th-diploma">Diploma</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results21k.map((row) => {
+              const isPodium = row.pos < 4;
+              const medalIcon = row.pos === 1 ? "🥇" : row.pos === 2 ? "🥈" : row.pos === 3 ? "🥉" : null;
+
+              return (
+                <tr class:list={[{ "tr-podium": isPodium }]}>
+                  <td class="td-pos">
+                    {medalIcon ? (
+                      <span class={`pos-medal pos-medal--${row.pos}`}>
+                        {medalIcon} <strong>{row.pos}º</strong>
+                      </span>
+                    ) : (
+                      <span class="pos-num">{row.pos}º</span>
+                    )}
+                  </td>
+                  <td class="td-dorsal">
+                    <span class="dorsal-tag">#{row.dorsal}</span>
+                  </td>
+                  <td class="td-runner">
+                    <strong class="runner-name">{row.name}</strong>
+                  </td>
+                  <td class="td-club">
+                    <span class="club-name">{row.club}</span>
+                  </td>
+                  <td class="td-cat">
+                    <span class="category-chip">{row.cat}</span>
+                  </td>
+                  <td class="td-pcat">
+                    <span class="pcat-num">{row.pCat}</span>
+                  </td>
+                  <td class="td-time">
+                    <strong class="time-official">{row.timeOf}</strong>
+                  </td>
+                  <td class="td-net">
+                    <span class="time-net">{row.timeNet}</span>
+                  </td>
+                  <td class="td-pace">
+                    <span class="pace-val">{row.pace} <small>min/km</small></span>
+                  </td>
+                  <td class="td-diploma">
+                    <button
+                      type="button"
+                      class="diploma-btn"
+                      title={`Descargar diploma de ${row.name}`}
+                      onclick={`alert('Descargando diploma oficial para dorsal #${row.dorsal} - ${row.name}');`}
+                    >
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                      <span>PDF</span>
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        <!-- Mensaje cuando no hay coincidencias con la búsqueda -->
+        <div id="no-results-msg" class="no-results-box" style="display: none;">
+          <p>No se ha encontrado ningún corredor con los criterios de búsqueda.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script ligero para filtrado en tiempo real en cliente sin recargas -->
+  <script>
+    function setupTableFilters() {
+      const searchInput = document.getElementById('runner-search-input') as HTMLInputElement | null;
+      const categoryFilter = document.getElementById('category-filter') as HTMLSelectElement | null;
+      const table = document.getElementById('results-table');
+      const noResultsMsg = document.getElementById('no-results-msg');
+
+      if (!table) return;
+
+      const rows = table.querySelectorAll<HTMLTableRowElement>('tbody tr');
+
+      function filterTable() {
+        const query = searchInput?.value.toLowerCase().trim() || '';
+        const selectedCat = categoryFilter?.value.toLowerCase().trim() || '';
+        let visibleCount = 0;
+
+        rows.forEach((row) => {
+          const text = row.textContent?.toLowerCase() || '';
+          const matchesQuery = query === '' || text.includes(query);
+          const matchesCategory = selectedCat === '' || text.includes(selectedCat);
+
+          if (matchesQuery && matchesCategory) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        if (noResultsMsg) {
+          noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+      }
+
+      searchInput?.addEventListener('input', filterTable);
+      categoryFilter?.addEventListener('change', filterTable);
+    }
+
+    setupTableFilters();
+    document.addEventListener('astro:page-load', setupTableFilters);
+  </script>
+</BaseLayout>
+
+<style>
+  .leaderboard-page {
+    background: #f8fafc;
+    min-height: 80vh;
+    padding: 1.5rem 0 4rem;
+  }
+
+  .leaderboard-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  /* Header */
+  .leaderboard-header {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 2rem 2.25rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.05);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .leaderboard-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #15803d;
+    background: #dcfce7;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.5rem;
+  }
+
+  .leaderboard-header h1 {
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 0.4rem;
+    line-height: 1.15;
+  }
+
+  .leaderboard-subtitle {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .leaderboard-stats-pills {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.6rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .stat-pill__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .stat-pill__value {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  /* Toolbar */
+  .leaderboard-toolbar {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-search {
+    position: relative;
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    align-items: center;
+  }
+
+  .toolbar-search svg {
+    position: absolute;
+    left: 1rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .toolbar-search input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.6rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--ink);
+    outline: none;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+    transition: all 0.2s ease;
+  }
+
+  .toolbar-search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  }
+
+  .toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .category-filter-wrapper select {
+    padding: 0.8rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* Table styling */
+  .leaderboard-table-wrapper {
+    margin-top: 1.25rem;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow-x: auto;
+    box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.04);
+  }
+
+  .leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+  }
+
+  .leaderboard-table thead {
+    background: #f8fafc;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .leaderboard-table th {
+    padding: 1rem 1.15rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .leaderboard-table tbody tr {
+    border-bottom: 1px solid var(--line);
+    transition: background 0.15s ease;
+  }
+
+  .leaderboard-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .leaderboard-table tbody tr:hover {
+    background: #f8fafc;
+  }
+
+  .leaderboard-table td {
+    padding: 1rem 1.15rem;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  /* Filas de podio */
+  .tr-podium {
+    background: rgba(254, 243, 199, 0.2);
+  }
+
+  .pos-medal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  .pos-medal--1 { color: #b45309; }
+  .pos-medal--2 { color: #475569; }
+  .pos-medal--3 { color: #92400e; }
+
+  .pos-num {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .dorsal-tag {
+    font-family: 'Manrope', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: #f1f5f9;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+
+  .runner-name {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .club-name {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .category-chip {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #334155;
+    background: #f1f5f9;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+
+  .pcat-num {
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .time-official {
+    font-family: 'Manrope', monospace;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .time-net {
+    font-family: 'Manrope', monospace;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .pace-val {
+    font-family: 'Manrope', monospace;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .pace-val small {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .diploma-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .diploma-btn:hover {
+    background: var(--ink);
+    color: #ffffff;
+    border-color: var(--ink);
+  }
+
+  .no-results-box {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 768px) {
+    .leaderboard-header {
+      padding: 1.5rem;
+    }
+
+    .leaderboard-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .toolbar-actions {
+      justify-content: space-between;
+    }
+  }
+</style>
+

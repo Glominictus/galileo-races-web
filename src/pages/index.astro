@@ -4,6 +4,7 @@ import RaceCarousel from "@/components/races/RaceCarousel";
 import FeaturedRacesGrid from "@/components/races/FeaturedRacesGrid";
 import { getRacePortalClient } from "@/lib/race-portal/index.server";
 import type { RaceSummary } from "@/lib/race-portal/types";
+import { isRaceOpen } from "@/lib/domain/races/filters";
 
 const { items } = await getRacePortalClient().listRaces();
 
@@ -17,30 +18,15 @@ function normalizeRaceDate(race: RaceSummary): RaceSummary {
   return time === null ? race : { ...race, startsAt: new Date(time).toISOString() };
 }
 
-// 1. Carreras para el carrusel de próximas salidas
+// 1. Carreras para el carrusel de próximas salidas (barrera estricta: solo abiertas y futuras)
 const now = Date.now();
-const upcomingFuture = items
-  .filter((race) => {
-    const startsAt = toSafeTimestamp(race.startsAt);
-    return startsAt !== null && startsAt >= now && race.status !== "closed";
-  })
+const upcomingRaces = items
+  .filter((race) => isRaceOpen(race, now))
   .sort(
     (a, b) =>
       (toSafeTimestamp(a.startsAt) ?? Number.POSITIVE_INFINITY) -
       (toSafeTimestamp(b.startsAt) ?? Number.POSITIVE_INFINITY),
-  );
-
-const upcomingRaces = (
-  upcomingFuture.length >= 4
-    ? upcomingFuture
-    : [
-        ...upcomingFuture,
-        ...items.filter(
-          (r) =>
-            r.status !== "closed" && !upcomingFuture.some((u) => u.id === r.id),
-        ),
-      ]
-)
+  )
   .slice(0, 5)
   .map(normalizeRaceDate);
 

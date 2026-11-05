@@ -36,7 +36,7 @@ const provinces = [...new Set(items.map((r) => r.province))].filter(Boolean).sor
     {
       !isCatalogPage && (
         <div class="site-header__search-desktop">
-          <RaceSearch races={items} isCatalogPage={false} client:load />
+          <RaceSearch races={items} client:load />
         </div>
       )
     }

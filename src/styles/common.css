@@ -204,10 +204,6 @@
   border-bottom: 1px solid var(--line);
 }
 
-.page-heading--lg {
-  padding: clamp(4rem, 9vw, 9rem) clamp(1.25rem, 5vw, 5rem) 4rem;
-}
-
 .page-heading__content {
   max-width: 48rem;
 }
@@ -226,13 +222,6 @@
   margin: 1.3rem 0 1.5rem;
   letter-spacing: -0.06em;
   color: var(--ink);
-}
-
-.page-heading--lg h1 {
-  font-size: clamp(4rem, 9vw, 9rem);
-  line-height: 0.82;
-  margin: 1.4rem 0 2rem;
-  letter-spacing: -0.075em;
 }
 
 .page-heading h1 em {
