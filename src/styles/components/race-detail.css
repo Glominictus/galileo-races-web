@@ -1,0 +1,1060 @@
+/* ==========================================================================
+   PÁGINA DE DETALLE DE CARRERA (RACE DETAIL)
+   ========================================================================== */
+
+.race-detail-page {
+  padding: clamp(0.75rem, 1.8vw, 1.5rem) 0 clamp(4rem, 7vw, 7rem);
+  background: var(--paper);
+}
+
+.race-detail-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3.5vw, 2.5rem);
+}
+
+/* ==========================================================================
+   MIGAS DE PAN (BREADCRUMB)
+   ========================================================================== */
+
+.race-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.race-breadcrumb__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  background: #ffffff;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.race-breadcrumb__back:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateX(-3px);
+}
+
+.race-breadcrumb__back svg {
+  transition: transform 0.2s ease;
+}
+
+.race-breadcrumb__back:hover svg {
+  transform: translateX(-2px);
+}
+
+.race-breadcrumb__separator {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+}
+
+.race-breadcrumb__link {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.race-breadcrumb__link:hover {
+  color: var(--ink);
+}
+
+.race-breadcrumb__current {
+  color: var(--ink);
+  font-weight: 600;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   HERO BANNER EDITORIAL
+   ========================================================================== */
+
+.race-hero-banner {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  background: #0f172a;
+}
+
+.race-hero-banner__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.88);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.race-hero-banner:hover .race-hero-banner__bg {
+  transform: scale(1.02);
+}
+
+.race-hero-banner__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.55) 0%,
+    rgba(15, 23, 42, 0.25) 40%,
+    rgba(15, 23, 42, 0.92) 100%
+  );
+  pointer-events: none;
+}
+
+.race-hero-banner__top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.race-hero-banner__badges {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.badge-featured-star {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.92);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+.race-hero-banner__bottom {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin-top: 4rem;
+}
+
+.race-hero-banner__headline {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.race-hero-banner__headline em {
+  font-style: normal;
+  color: #fb923c;
+}
+
+.race-hero-banner__meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.hero-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f8fafc;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.hero-meta-chip svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   CINTA DE MÉTRICAS RÁPIDAS (STATS RIBBON)
+   ========================================================================== */
+
+.race-stats-ribbon {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.25rem 1.75rem;
+  margin: 1.5rem 0 2.5rem;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+}
+
+.stat-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-right: 1rem;
+  border-right: 1px solid var(--line);
+}
+
+.stat-box:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.stat-box__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(249, 115, 22, 0.15);
+}
+
+.stat-box__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.stat-box__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.stat-box__value {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL (2 COLUMNAS: CONTENIDO + SIDEBAR)
+   ========================================================================== */
+
+.race-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 370px;
+  gap: clamp(2rem, 3.5vw, 3.5rem);
+  align-items: start;
+}
+
+.race-main-content {
+  min-width: 0;
+}
+
+/* ==========================================================================
+   SECCIONES DE CONTENIDO
+   ========================================================================== */
+
+.race-section {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.03);
+}
+
+.race-section__header {
+  margin-bottom: 1.5rem;
+}
+
+.race-section__header .section-index {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  display: inline-block;
+  margin-bottom: 0.35rem;
+}
+
+.race-section__header h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.race-section__header p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin: 0.35rem 0 0;
+}
+
+.race-lead-text {
+  font-size: 1.12rem;
+  line-height: 1.7;
+  color: #334155;
+  margin: 0 0 1.5rem;
+}
+
+.race-highlights-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.highlight-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  border: 1px solid var(--line);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   TARJETAS DE MODALIDAD (RECORRIDOS Y TARIFAS)
+   ========================================================================== */
+
+.modality-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modality-card {
+  position: relative;
+  background: #ffffff;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.modality-card:hover {
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.modality-card--sold-out {
+  opacity: 0.78;
+  background: #fafafa;
+}
+
+.modality-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.modality-card__main-info {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.modality-badge-dist {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+
+.modality-badge-dist small {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.modality-card__titles h3 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 0.25rem;
+}
+
+.modality-card__titles p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Barra de Disponibilidad / Aforo */
+.modality-occupancy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  padding: 0.85rem 1.15rem;
+  border-radius: 12px;
+}
+
+.modality-occupancy__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.occupancy-places {
+  color: var(--ink);
+}
+
+.occupancy-places strong {
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.occupancy-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.occupancy-tag--open {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.occupancy-tag--urgent {
+  background: #fee2e2;
+  color: #b91c1c;
+  animation: pulse-soft 2s infinite ease-in-out;
+}
+
+.occupancy-tag--sold-out {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.occupancy-bar-track {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.occupancy-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modality-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.modality-price-box {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.modality-price-box span {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.modality-price-box strong {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+}
+
+/* ==========================================================================
+   PROGRAMA Y TIMELINE
+   ========================================================================== */
+
+.race-timeline {
+  position: relative;
+  margin: 1rem 0 0.5rem;
+  padding-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.race-timeline::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 8px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+
+.timeline-item__dot {
+  position: absolute;
+  left: -2rem;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+.timeline-item__time {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ink);
+  min-width: 70px;
+}
+
+.timeline-item__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   GRID DE SERVICIOS INCLUIDOS
+   ========================================================================== */
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.service-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  padding: 0.95rem 1.15rem;
+  border-radius: 12px;
+  transition: all 0.18s ease;
+}
+
+.service-card:hover {
+  background: #ffffff;
+  border-color: rgba(249, 115, 22, 0.35);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.service-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(249, 115, 22, 0.15);
+}
+
+.service-card__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   LOCALIZACIÓN Y MAPA
+   ========================================================================== */
+
+.venue-card {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.venue-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.venue-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--accent);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.venue-card__info h4 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 0.25rem;
+}
+
+.venue-card__info p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.venue-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   REGLAMENTO Y ORGANIZADOR
+   ========================================================================== */
+
+.rules-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.rules-card__info {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.rules-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rules-card__text strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.rules-card__text span {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   STICKY SIDEBAR (CAJA DE INSCRIPCIÓN DESKTOP)
+   ========================================================================== */
+
+.race-sidebar-sticky {
+  position: sticky;
+  top: calc(var(--header) + 1.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sidebar-checkout-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 1.85rem;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.sidebar-checkout-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.sidebar-official-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.sidebar-price-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sidebar-price-row span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.sidebar-price-row strong {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.sidebar-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+}
+
+.sidebar-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.sidebar-summary-item svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.sidebar-guarantees {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--line);
+}
+
+.guarantee-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.guarantee-item svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.sidebar-organizer-box {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.sidebar-organizer-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.sidebar-organizer-text {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.sidebar-organizer-text strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   BARRA FLOTANTE MÓVIL (MOBILE STICKY BAR)
+   ========================================================================== */
+
+.mobile-sticky-bar {
+  display: none;
+}
+
+/* ==========================================================================
+   ADAPTACIONES RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .race-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .race-sidebar-sticky {
+    position: static;
+  }
+
+  .sidebar-checkout-card {
+    display: none;
+  }
+
+  .race-stats-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .stat-box:nth-child(2) {
+    border-right: none;
+  }
+
+  .stat-box:nth-child(3) {
+    border-top: 1px solid var(--line);
+    padding-top: 0.75rem;
+  }
+
+  .stat-box:nth-child(4) {
+    border-top: 1px solid var(--line);
+    padding-top: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .race-hero-banner {
+    min-height: 280px;
+    border-radius: 16px;
+    padding: 1.25rem;
+  }
+
+  .race-hero-banner__bottom {
+    margin-top: 2rem;
+  }
+
+  .race-hero-banner__headline {
+    font-size: 1.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-meta-chip {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.65rem;
+  }
+
+  .race-stats-ribbon {
+    grid-template-columns: 1fr;
+    border-radius: 14px;
+    padding: 1rem;
+    margin: 1.25rem 0 1.75rem;
+  }
+
+  .stat-box {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.75rem;
+  }
+
+  .stat-box:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modality-card__main-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .modality-card__footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+
+  .modality-card__footer .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mobile-sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.25rem calc(0.8rem + env(safe-area-inset-bottom, 0px)) 1.25rem;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 20px -2px rgba(15, 23, 42, 0.08);
+  }
+
+  .mobile-sticky-bar__details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .mobile-sticky-bar__label {
+    font-size: 0.68rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+
+  .mobile-sticky-bar__price {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .mobile-sticky-bar__price strong {
+    font-size: 1.3rem;
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+  }
+
+  .mobile-sticky-bar__cta {
+    padding: 0.7rem 1.35rem;
+    font-size: 0.92rem;
+    border-radius: 10px;
+  }
+
+  .site-footer--mobile {
+    padding-bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}

@@ -18,644 +18,623 @@ try {
 const hasOpen = race.modalities.some((item) => item.status === "open");
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || Astro.url.origin;
 const jsonLd = buildRaceJsonLd(race, siteUrl);
+
+// Fecha amigable capitalizada
+const rawFullDate = formatDate(race.startsAt, {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+const fullDate = rawFullDate.charAt(0).toUpperCase() + rawFullDate.slice(1);
+
+// URL de direcciones para Google Maps
+const mapsUrl =
+  race.latitude && race.longitude
+    ? `https://www.google.com/maps/search/?api=1&query=${race.latitude},${race.longitude}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${race.locationName || race.city}, ${race.province}, Galicia`)}`;
+
+// Helper para iconos de servicios incluidos
+function getServiceIconType(name: string) {
+  const lower = name.toLowerCase();
+  if (lower.includes("chip") || lower.includes("dorsal") || lower.includes("cronometraje")) return "timer";
+  if (lower.includes("avituallamiento") || lower.includes("agua") || lower.includes("líquid") || lower.includes("fruta")) return "bottle";
+  if (lower.includes("guardarropa") || lower.includes("consigna") || lower.includes("mochila")) return "backpack";
+  if (lower.includes("camiseta") || lower.includes("prenda") || lower.includes("regalo")) return "shirt";
+  if (lower.includes("seguro") || lower.includes("médic") || lower.includes("asistencia")) return "shield";
+  if (lower.includes("ducha") || lower.includes("vestuario")) return "shower";
+  return "medal";
+}
 ---
 
 <BaseLayout
-  title={`${race.name} — PULSO`}
-  description={race.seoDescription}
+  title={`${race.name} en ${race.city} 2026 — PULSO`}
+  description={race.seoDescription || race.description}
   image={race.imageUrl}
   jsonLd={jsonLd}
 >
-  <section class="race-hero">
-    <img src={race.imageUrl} alt={`Corredores en ${race.name}`} /><div
-      class="race-hero__overlay"
-    >
-    </div><div class="race-hero__content">
-      <span>{race.type} · {race.province}</span><h1>{race.name}</h1><p>
-        {formatDate(race.startsAt)} · {race.city}
-      </p>
-      {
-        hasOpen && (
-          <a class="button button--accent race-hero__cta" href={`/inscripcion/${race.slug}`}>
-            Inscribirme ahora <span>→</span>
-          </a>
-        )
-      }
-    </div><div class:list={["race-state", `status--${race.status}`]}>
-      <i></i>{statusCopy[race.status]}
-    </div>
-  </section>
-  <section class="race-intro">
-    <span class="section-index">La prueba</span><p>{race.description}</p><div
-      class="race-facts"
-    >
-      <div>
-        <span>Distancias</span><strong>{race.distanceLabel}</strong>
-      </div><div>
-        <span>Desde</span><strong>{formatMoney(race.priceFrom)}</strong>
-      </div><div>
-        <span>Organiza</span><strong>{race.organizer.name}</strong>
-      </div>
-    </div>
-  </section>
-  <section class="race-modalities">
-    <header class="modalities-intro">
-      <span class="section-index">Modalidades</span>
-      <h2>
-        Elige tu<br />propio ritmo.
-      </h2>
-    </header>
-    <div class="modalities-scroll-container">
-      <div class="modalities-list">
-        {
-          race.modalities.map((item, index) => (
-            <article class="modality-row">
-              {
-                item.status === 'open' && (
-                  <a
-                    class="modality-card-link"
-                    href={`/inscripcion/${race.slug}?modality=${item.id}`}
-                    aria-label={`Inscribirme en ${item.name}`}
-                  />
-                )
-              }
-              <!-- Columna 1: Índice y Distancia en grande -->
-              <div class="modality-distance">
-                <span class="modality-index">0{index + 1}</span>
-                <strong>
-                  {item.distanceKm.toLocaleString("es-ES")}
-                  <small> km</small>
-                </strong>
-              </div>
-              <div class="modality-info">
-                <h3>{item.name}</h3>
-                <p>
-                  {formatDate(item.startAt, {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                <span class:list={["status", `status--${item.status}`]}>
-                  <i />
-                  {item.status === "open"
-                    ? `${item.availablePlaces} plazas`
-                    : statusCopy[item.status]}
-                </span>
-              </div>
-              <div class="modality-price">
-                <b>{formatMoney(item.priceFrom)}</b>
-                {
-                  item.status === 'open' && (
-                    <>
-                      <a class="button button--accent button--sm" href={`/inscripcion/${race.slug}?modality=${item.id}`}>
-                        Inscribirme <span>→</span>
-                      </a>
-                      <span class="modality-mobile-cta" aria-hidden="true">
-                        Seleccionar <span>→</span>
-                      </span>
-                    </>
-                  )
-                }
-              </div>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-  <section class="race-detail">
-    <div>
-      <span class="section-index">Horario</span><h2>Todo a<br />su tiempo.</h2>
-    </div><ol>
-      {
-        race.schedule.map((item) => (
-          <li>
-            <>
-              <time>{item.time}</time>
-              <span>{item.label}</span>
-            </>
-          </li>
-        ))
-      }
-    </ol><div class="included">
-      <span class="section-index">Tu inscripción incluye</span><ul>
-        {race.included.map((item) => <li>↗ {item}</li>)}
-      </ul>
-    </div>
-  </section>
-  <section class="race-cta">
-    <div>
-      <span class="section-index"
-        >{race.city} · {formatDate(race.startsAt)}</span
-      ><h2>{hasOpen ? "Nos vemos en la salida." : statusCopy[race.status]}</h2>
-    </div>{
-      hasOpen ? (
-        <a class="button button--accent" href={`/inscripcion/${race.slug}`}>
-          Inscribirme ahora <span>→</span>
+  <div class="race-detail-page">
+    <div class="race-detail-container">
+      <!-- Migas de pan (Breadcrumb) -->
+      <nav class="race-breadcrumb" aria-label="Migas de pan">
+        <a href="/carreras" class="race-breadcrumb__back">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Todas las carreras</span>
         </a>
-      ) : (
-        <a class="button button--accent" href="/carreras">
-          Ver otras carreras <span>→</span>
+        <span class="race-breadcrumb__separator">/</span>
+        <a href={`/carreras?province=${encodeURIComponent(race.province)}`} class="race-breadcrumb__link">
+          {race.province}
         </a>
-      )
-    }
-  </section>
+        <span class="race-breadcrumb__separator">/</span>
+        <span class="race-breadcrumb__current" aria-current="page">{race.name}</span>
+      </nav>
 
-  {
-    hasOpen && (
-      <aside class="mobile-sticky-bar" aria-label="Inscripción directa">
-        <div class="mobile-sticky-bar__details">
-          <span class="mobile-sticky-bar__label">Inscripción oficial</span>
-          <span class="mobile-sticky-bar__price">
-            Desde <strong>{formatMoney(race.priceFrom)}</strong>
-          </span>
+      <!-- Hero Banner Editorial -->
+      <header class="race-hero-banner">
+        <img
+          src={race.imageUrl}
+          alt={`Prueba deportiva ${race.name}`}
+          class="race-hero-banner__bg"
+          loading="eager"
+        />
+        <div class="race-hero-banner__overlay"></div>
+
+        <div class="race-hero-banner__top">
+          <div class="race-hero-banner__badges">
+            <div class:list={["card-status", `card-status--${race.status}`]}>
+              <span class="card-status__dot"></span>
+              <span class="card-status__label">{statusCopy[race.status] || race.status}</span>
+            </div>
+            <span class="card-badge card-badge--type">{race.type}</span>
+          </div>
+
+          {race.featured && (
+            <span class="badge-featured-star">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="none" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              <span>Destacada</span>
+            </span>
+          )}
         </div>
-        <a class="button button--accent mobile-sticky-bar__cta" href={`/inscripcion/${race.slug}`}>
-          Inscribirme <span>→</span>
-        </a>
-      </aside>
-    )
-  }
+
+        <div class="race-hero-banner__bottom">
+          <h1 class="race-hero-banner__headline">{race.name}</h1>
+          <div class="race-hero-banner__meta-row">
+            <span class="hero-meta-chip">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>{fullDate}</span>
+            </span>
+
+            <span class="hero-meta-chip">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span>{race.city} · {race.province}</span>
+            </span>
+
+            <span class="hero-meta-chip">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
+              </svg>
+              <span>{race.distanceLabel}</span>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Cinta de Métricas Rápidas (Stats Ribbon) -->
+      <section class="race-stats-ribbon" aria-label="Datos clave del evento">
+        <div class="stat-box">
+          <div class="stat-box__icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-box__content">
+            <span class="stat-box__label">Fecha del evento</span>
+            <strong class="stat-box__value">
+              {formatDate(race.startsAt, { day: "numeric", month: "short", year: "numeric" })}
+            </strong>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-box__icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div class="stat-box__content">
+            <span class="stat-box__label">Localización</span>
+            <strong class="stat-box__value">{race.city} ({race.province})</strong>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-box__icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
+            </svg>
+          </div>
+          <div class="stat-box__content">
+            <span class="stat-box__label">Distancias</span>
+            <strong class="stat-box__value">{race.distanceLabel}</strong>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-box__icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <div class="stat-box__content">
+            <span class="stat-box__label">Tarifa oficial</span>
+            <strong class="stat-box__value">Desde {formatMoney(race.priceFrom)}</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layout Principal en 2 Columnas -->
+      <div class="race-layout-grid">
+        <!-- Columna Izquierda: Contenido y Secciones -->
+        <main class="race-main-content">
+          <!-- 01 — La Prueba -->
+          <section class="race-section" id="resumen">
+            <div class="race-section__header">
+              <span class="section-index">01 — La prueba</span>
+              <h2>Sobre la carrera</h2>
+            </div>
+            <p class="race-lead-text">{race.description}</p>
+
+            <div class="race-highlights-tags">
+              <span class="highlight-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+                Organiza: <strong>{race.organizer.name}</strong>
+              </span>
+
+              <span class="highlight-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                Terreno: <strong>{race.type}</strong>
+              </span>
+
+              <span class="highlight-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Cronometraje oficial Galileo
+              </span>
+            </div>
+          </section>
+
+          <!-- 02 — Modalidades y Tarifas -->
+          <section class="race-section" id="modalidades">
+            <div class="race-section__header">
+              <span class="section-index">02 — Modalidades oficiales</span>
+              <h2>Recorridos y tarifas</h2>
+              <p>Plazas limitadas con cronometraje y dorsal garantizados.</p>
+            </div>
+
+            <div class="modality-cards-list">
+              {race.modalities.map((item, index) => {
+                const totalPlaces = item.capacity || 0;
+                const available = item.availablePlaces ?? 0;
+                const taken = totalPlaces > 0 ? Math.max(0, totalPlaces - available) : 0;
+                const percent = totalPlaces > 0 ? Math.min(100, Math.round((taken / totalPlaces) * 100)) : 0;
+                const isUrgent = item.status === 'open' && available > 0 && (available < 50 || percent >= 80);
+
+                return (
+                  <article class:list={["modality-card", { "modality-card--sold-out": item.status === 'sold-out' || item.status === 'closed' }]}>
+                    <div class="modality-card__header">
+                      <div class="modality-card__main-info">
+                        <div class="modality-badge-dist">
+                          {item.distanceKm.toLocaleString("es-ES")}
+                          <small>km</small>
+                        </div>
+                        <div class="modality-card__titles">
+                          <h3>{item.name}</h3>
+                          <p>
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            Salida a las {formatDate(item.startAt, { hour: "2-digit", minute: "2-digit" })} h
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="modality-card__state">
+                        <span class:list={["card-status", `card-status--${item.status}`]}>
+                          <span class="card-status__dot"></span>
+                          <span class="card-status__label">{statusCopy[item.status] || item.status}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Disponibilidad y Aforo con barra visual -->
+                    <div class="modality-occupancy">
+                      <div class="modality-occupancy__meta">
+                        <span class="occupancy-places">
+                          {item.status === 'open' ? (
+                            <>
+                              <strong>{available}</strong> de {totalPlaces} plazas disponibles
+                            </>
+                          ) : (
+                            <span>Plazas agotadas para este dorsal</span>
+                          )}
+                        </span>
+
+                        {isUrgent && (
+                          <span class="occupancy-tag occupancy-tag--urgent">
+                            ¡Últimas plazas!
+                          </span>
+                        )}
+                        {!isUrgent && item.status === 'open' && (
+                          <span class="occupancy-tag occupancy-tag--open">
+                            {percent}% completo
+                          </span>
+                        )}
+                        {item.status !== 'open' && (
+                          <span class="occupancy-tag occupancy-tag--sold-out">
+                            Agotado
+                          </span>
+                        )}
+                      </div>
+
+                      <div class="occupancy-bar-track" aria-hidden="true">
+                        <div
+                          class="occupancy-bar-fill"
+                          style={`width: ${item.status === 'open' ? percent : 100}%; background: ${item.status !== 'open' ? '#94a3b8' : undefined}`}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <!-- Pie de tarjeta con precio y botón de inscripción directa -->
+                    <div class="modality-card__footer">
+                      <div class="modality-price-box">
+                        <span>Desde</span>
+                        <strong>{formatMoney(item.priceFrom)}</strong>
+                      </div>
+
+                      {item.status === 'open' ? (
+                        <a
+                          class="button button--accent"
+                          href={`/inscripcion/${race.slug}?modality=${item.id}`}
+                        >
+                          <span>Inscribirme en {item.name}</span>
+                          <span aria-hidden="true">→</span>
+                        </a>
+                      ) : (
+                        <button disabled class="button button--disabled">
+                          <span>Plazas agotadas</span>
+                        </button>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <!-- 03 — Programa de la Jornada (Timeline) -->
+          {race.schedule && race.schedule.length > 0 && (
+            <section class="race-section" id="horario">
+              <div class="race-section__header">
+                <span class="section-index">03 — Horarios clave</span>
+                <h2>Programa de la jornada</h2>
+                <p>Planifica tu llegada con antelación para recoger el dorsal sin prisas.</p>
+              </div>
+
+              <div class="race-timeline">
+                {race.schedule.map((item) => (
+                  <div class="timeline-item">
+                    <span class="timeline-item__dot" aria-hidden="true"></span>
+                    <time class="timeline-item__time">{item.time} h</time>
+                    <span class="timeline-item__label">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <!-- 04 — Servicios Incluidos -->
+          {race.included && race.included.length > 0 && (
+            <section class="race-section" id="servicios">
+              <div class="race-section__header">
+                <span class="section-index">04 — Tu inscripción incluye</span>
+                <h2>Servicios al corredor</h2>
+                <p>Todo lo que la organización pone a tu disposición con tu dorsal oficial.</p>
+              </div>
+
+              <div class="services-grid">
+                {race.included.map((item) => {
+                  const iconType = getServiceIconType(item);
+
+                  return (
+                    <div class="service-card">
+                      <div class="service-card__icon" aria-hidden="true">
+                        {iconType === 'timer' && (
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                        )}
+                        {iconType === 'bottle' && (
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v6m-4-2h8m-8 6h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"></path>
+                          </svg>
+                        )}
+                        {iconType === 'backpack' && (
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                            <path d="M9 4v4h6V4"></path>
+                          </svg>
+                        )}
+                        {iconType === 'shirt' && (
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path>
+                          </svg>
+                        )}
+                        {iconType === 'shield' && (
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                          </svg>
+                        )}
+                        {iconType === 'shower' && (
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v6m-4-2h8m-8 6h8"></path>
+                            <path d="M12 14v4"></path>
+                          </svg>
+                        )}
+                        {iconType === 'medal' && (
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="7"></circle>
+                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                          </svg>
+                        )}
+                      </div>
+                      <span class="service-card__title">{item}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          <!-- 05 — Localización y Salida -->
+          <section class="race-section" id="ubicacion">
+            <div class="race-section__header">
+              <span class="section-index">05 — Localización</span>
+              <h2>Punto de salida y meta</h2>
+              <p>Conoce la zona de salida, recogida de dorsales y accesos recomendados.</p>
+            </div>
+
+            <div class="venue-card">
+              <div class="venue-card__header">
+                <div class="venue-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                </div>
+                <div class="venue-card__info">
+                  <h4>{race.locationName || race.city}</h4>
+                  <p>{race.city}, Provincia de {race.province} · Galicia</p>
+                </div>
+              </div>
+
+              <div class="venue-card__actions">
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="button button--dark"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                  </svg>
+                  <span>Cómo llegar en Google Maps ↗</span>
+                </a>
+
+                <a href="/carreras/mapa" class="button button--outline">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                  </svg>
+                  <span>Ver mapa de Galicia</span>
+                </a>
+              </div>
+            </div>
+          </section>
+
+          <!-- 06 — Reglamento y Organización Oficial -->
+          <section class="race-section" id="reglamento">
+            <div class="race-section__header">
+              <span class="section-index">06 — Información oficial</span>
+              <h2>Organización y normativa</h2>
+            </div>
+
+            <div class="rules-card">
+              <div class="rules-card__info">
+                <div class="rules-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                </div>
+                <div class="rules-card__text">
+                  <strong>Reglamento oficial de la prueba</strong>
+                  <span>Categorías, devoluciones, avituallamientos y control de tiempos.</span>
+                </div>
+              </div>
+
+              {race.rulesUrl ? (
+                <a
+                  href={race.rulesUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="button button--dark"
+                >
+                  <span>Consultar reglamento ↗</span>
+                </a>
+              ) : (
+                <span class="text-muted" style="font-size: 0.85rem;">Normativa federativa aplicable</span>
+              )}
+            </div>
+          </section>
+        </main>
+
+        <!-- Columna Derecha: Sticky Sidebar de Conversión (Desktop) -->
+        <aside class="race-sidebar-sticky" aria-label="Resumen de inscripción">
+          <div class="sidebar-checkout-card">
+            <div class="sidebar-checkout-card__header">
+              <span class="sidebar-official-badge">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Inscripción Oficial
+              </span>
+              <div class:list={["card-status", `card-status--${race.status}`]}>
+                <span class="card-status__dot"></span>
+                <span class="card-status__label">{statusCopy[race.status] || race.status}</span>
+              </div>
+            </div>
+
+            <div class="sidebar-price-row">
+              <span>Tarifa de salida</span>
+              <strong>{formatMoney(race.priceFrom)}</strong>
+            </div>
+
+            <div class="sidebar-summary-list">
+              <div class="sidebar-summary-item">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>{fullDate}</span>
+              </div>
+
+              <div class="sidebar-summary-item">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{race.city} ({race.province})</span>
+              </div>
+
+              <div class="sidebar-summary-item">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
+                </svg>
+                <span>Modalidades: {race.distanceLabel}</span>
+              </div>
+            </div>
+
+            {hasOpen ? (
+              <a
+                class="button button--accent button--full"
+                style="padding: 1.1rem 1.4rem; font-size: 1.05rem;"
+                href={`/inscripcion/${race.slug}`}
+              >
+                <span>Inscribirme ahora</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            ) : (
+              <div>
+                <button disabled class="button button--disabled button--full mb-2">
+                  <span>Plazas agotadas</span>
+                </button>
+                <a class="button button--dark button--full mt-2" href="/carreras">
+                  <span>Ver otras carreras</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            )}
+
+            <div class="sidebar-guarantees">
+              <div class="guarantee-item">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Cronometraje oficial con chip verificado</span>
+              </div>
+
+              <div class="guarantee-item">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Asignación inmediata de dorsal oficial</span>
+              </div>
+
+              <div class="guarantee-item">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Pasarela de pago 100% segura (Bizum / Tarjeta)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-organizer-box">
+            <div class="sidebar-organizer-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div class="sidebar-organizer-text">
+              <span>Organizado por</span>
+              <strong>{race.organizer.name}</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra Flotante Inferior para Móviles -->
+  {hasOpen && (
+    <aside class="mobile-sticky-bar" aria-label="Inscripción directa">
+      <div class="mobile-sticky-bar__details">
+        <span class="mobile-sticky-bar__label">Inscripción oficial</span>
+        <span class="mobile-sticky-bar__price">
+          Desde <strong>{formatMoney(race.priceFrom)}</strong>
+        </span>
+      </div>
+      <a class="button button--accent mobile-sticky-bar__cta" href={`/inscripcion/${race.slug}`}>
+        <span>Inscribirme</span>
+        <span aria-hidden="true">→</span>
+      </a>
+    </aside>
+  )}
 </BaseLayout>
-<style>
-  .race-hero {
-    height: calc(100svh - var(--header));
-    min-height: 620px;
-    position: relative;
-    color: var(--white);
-    overflow: hidden;
-  }
-  .race-hero > img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .race-hero__overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      0deg,
-      rgba(4, 5, 5, 0.9),
-      rgba(4, 5, 5, 0.05) 65%
-    );
-  }
-  .race-hero__content {
-    position: absolute;
-    left: clamp(1.25rem, 5vw, 5rem);
-    bottom: clamp(2rem, 6vw, 6rem);
-    max-width: 75rem;
-  }
-  .race-hero__content > span {
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.17em;
-    font-size: 0.7rem;
-  }
-  .race-hero h1 {
-    font-size: clamp(4.2rem, 10vw, 10rem);
-    line-height: 0.82;
-    margin: 1rem 0 1.5rem;
-    max-width: 11ch;
-  }
-  .race-hero__content p {
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-  }
-  .race-state {
-    position: absolute;
-    right: 3rem;
-    top: 3rem;
-    background: var(--white);
-    color: var(--ink);
-    padding: 0.7rem 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.68rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .race-state i {
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 50%;
-    background: #92958e;
-  }
-  .race-state.status--open i {
-    background: #22c55e;
-    animation: status-blink 1.5s ease-in-out infinite;
-  }
-  .race-state.status--sold-out i {
-    background: #ef4444;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.35);
-  }
-  .race-intro {
-    padding: clamp(6rem, 13vw, 12rem) clamp(1.25rem, 7vw, 7rem);
-  }
-  .race-intro > p {
-    font: 500 clamp(2rem, 4.5vw, 4.5rem)/1.08 "Manrope";
-    letter-spacing: -0.05em;
-    max-width: 24ch;
-    margin: 2rem 0 5rem;
-  }
-  .race-facts {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-  }
-  .race-facts > div {
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-    padding: 1.5rem;
-    border-right: 1px solid var(--line);
-  }
-  .race-facts > div:last-child {
-    border: 0;
-  }
-  .race-facts span {
-    color: var(--muted);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-  }
-  .race-facts strong {
-    font: 600 clamp(1.3rem, 2.7vw, 2.5rem) "Manrope";
-  }
-  .race-modalities {
-    background: var(--white);
-    padding: clamp(5rem, 10vw, 10rem) clamp(1.25rem, 6vw, 6rem);
-    display: grid;
-    grid-template-columns: 0.8fr 1.2fr;
-    gap: 5vw;
-  }
-  .race-modalities header h2,
-  .race-detail h2 {
-    font-size: clamp(3rem, 6vw, 6rem);
-    line-height: 0.9;
-    margin: 1rem 0;
-  }
-  .race-modalities article {
-    display: grid;
-    grid-template-columns: 6.5rem 1fr auto !important;
-    gap: clamp(2rem, 4vw, 4rem);
-    align-items: center;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .modality-index {
-    color: var(--muted);
-    font-size: 0.7rem;
-  }
-  .race-modalities article > strong {
-    font: 700 2.6rem "Manrope";
-  }
-  .race-modalities article > strong small {
-    font-size: 0.7rem;
-  }
-  .race-modalities h3 {
-    margin: 0 0 0.3rem;
-    font-size: 1.3rem;
-  }
-  .race-modalities p {
-    margin: 0 0 0.6rem;
-    color: var(--muted);
-    font-size: 0.8rem;
-  }
-  .race-detail {
-    padding: clamp(6rem, 11vw, 11rem) clamp(1.25rem, 7vw, 7rem);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-  }
-  .race-detail ol {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border-top: 1px solid var(--line);
-  }
-  .race-detail li {
-    display: grid;
-    grid-template-columns: 5rem 1fr;
-    padding: 1.2rem 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .race-detail time {
-    font: 700 1.3rem "Manrope";
-  }
-  .included {
-    grid-column: 2;
-    margin-top: 2rem;
-  }
-  .included ul {
-    padding: 1rem 0 0;
-    list-style: none;
-    columns: 2;
-  }
-  .included li {
-    display: block;
-    border: 0;
-    padding: 0.5rem 0;
-  }
-  .race-cta {
-    padding: clamp(5rem, 8vw, 8rem) clamp(1.25rem, 6vw, 6rem);
-    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
-    border-top: 1px solid rgba(249, 115, 22, 0.15);
-    color: var(--ink);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-  .race-cta h2 {
-    font-size: clamp(3rem, 7vw, 7rem);
-    line-height: 0.9;
-    margin: 1rem 0 0;
-    color: var(--ink);
-  }
-  .race-cta .section-index {
-    color: var(--accent);
-  }
-  .modalities-scroll-container,
-  .modalities-list {
-    max-height: 520px; 
-    overflow-y: auto;
-    padding-right: 0.5rem;
-  }
-  .modality-row:last-child {
-    border-bottom: 1px solid var(--line, rgba(0, 0, 0, 0.1));
-  }
-  .modality-price {
-    font: 700 1.3rem "Manrope", sans-serif;
-    color: var(--ink, #0b1220);
-    white-space: nowrap;
-    text-align: right; 
-    padding-right: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5rem;
-  }
-  .button--sm {
-    padding: 0.5rem 0.9rem;
-    font-size: 0.8rem;
-    gap: 0.5rem;
-    border-radius: 6px;
-  }
-  .race-hero__cta {
-    margin-top: 1.75rem;
-    display: inline-flex;
-  }
-  .modality-card-link,
-  .modality-mobile-cta {
-    display: none;
-  }
-  .mobile-sticky-bar {
-    display: none;
-  }
-  @media (max-width: 800px) {
-    .race-hero {
-      min-height: 440px;
-      height: 62svh;
-    }
-    .race-hero h1 {
-      font-size: clamp(2.2rem, 8vw, 3.2rem);
-      line-height: 0.95;
-      margin: 0.5rem 0 0.75rem;
-    }
-    .race-hero__content {
-      left: 1.25rem;
-      right: 1.25rem;
-      bottom: 2rem;
-      max-width: 100%;
-    }
-    .race-hero__content p {
-      font-size: 0.82rem;
-      letter-spacing: 0.08em;
-    }
-    .race-state {
-      right: 1rem;
-      top: 1rem;
-      padding: 0.45rem 0.85rem;
-      font-size: 0.65rem;
-      border-radius: 20px;
-    }
-    .race-hero__cta {
-      display: none !important;
-    }
-
-    .race-intro {
-      padding: 2.75rem 1.25rem 2rem;
-    }
-    .race-intro > p {
-      font: 500 1.25rem/1.35 "Manrope", sans-serif;
-      letter-spacing: -0.02em;
-      margin: 0.75rem 0 1.75rem;
-      max-width: 100%;
-    }
-    .race-facts {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-      border: none;
-    }
-    .race-facts > div {
-      background: var(--white);
-      padding: 0.85rem 0.65rem;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      gap: 0.35rem;
-    }
-    .race-facts span {
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-    }
-    .race-facts strong {
-      font-size: 1.05rem;
-      line-height: 1.2;
-    }
-
-    .race-modalities {
-      padding: 2.75rem 1.25rem 2rem;
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-    .modalities-intro h2 {
-      font-size: 2rem;
-      line-height: 1;
-      margin: 0.5rem 0 1.25rem;
-    }
-    .modalities-scroll-container,
-    .modalities-list {
-      max-height: none !important;
-      overflow: visible !important;
-      padding-right: 0;
-    }
-    .race-modalities article {
-      display: grid !important;
-      grid-template-columns: 1fr auto !important;
-      gap: 0.6rem !important;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 1.15rem !important;
-      margin-bottom: 0.85rem;
-    }
-    .modality-distance {
-      display: flex;
-      align-items: baseline;
-      gap: 0.5rem;
-    }
-    .modality-distance strong {
-      font: 700 2rem "Manrope", sans-serif;
-      color: var(--ink);
-    }
-    .modality-info {
-      grid-column: 1 / -1;
-    }
-    .modality-info h3 {
-      font-size: 1.05rem;
-      margin: 0.15rem 0 0.35rem;
-    }
-    .modality-info p {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin: 0 0 0.45rem;
-    }
-    .modality-row {
-      position: relative;
-    }
-    .modality-card-link {
-      display: block;
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      border-radius: 14px;
-    }
-    .modality-price {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      border-top: 1px solid var(--line);
-      padding-top: 0.75rem;
-      margin-top: 0.35rem;
-      padding-right: 0 !important;
-    }
-    .modality-price b {
-      font-size: 1.35rem;
-      color: var(--ink);
-    }
-    .modality-price .button--sm {
-      display: none !important;
-    }
-    .modality-mobile-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .race-detail {
-      padding: 2.75rem 1.25rem;
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-    .race-detail h2 {
-      font-size: 2rem;
-      line-height: 1;
-      margin: 0.5rem 0 1.25rem;
-    }
-    .race-detail li {
-      grid-template-columns: 4.5rem 1fr;
-      padding: 0.85rem 0;
-    }
-    .race-detail time {
-      font-size: 1.15rem;
-    }
-    .included {
-      grid-column: 1;
-      margin-top: 1rem;
-    }
-    .included ul {
-      columns: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      padding-top: 0.75rem;
-    }
-    .included li {
-      background: var(--white);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 0.65rem 0.85rem;
-      font-size: 0.88rem;
-      color: var(--ink);
-    }
-
-    .race-cta {
-      display: block;
-      padding: 3rem 1.25rem 5.5rem;
-    }
-    .race-cta h2 {
-      font-size: 2.2rem;
-      line-height: 1;
-    }
-    .race-cta .button {
-      display: none !important;
-    }
-
-    .mobile-sticky-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 99;
-      display: flex !important;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.8rem 1.25rem calc(0.8rem + env(safe-area-inset-bottom, 0px)) 1.25rem;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid var(--line);
-      box-shadow: 0 -4px 20px -2px rgba(15, 23, 42, 0.08);
-    }
-    .mobile-sticky-bar__details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-    .mobile-sticky-bar__label {
-      font-size: 0.68rem;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 700;
-    }
-    .mobile-sticky-bar__price {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-    .mobile-sticky-bar__price strong {
-      font-size: 1.25rem;
-      color: var(--ink);
-      font-family: 'Manrope', sans-serif;
-      font-weight: 800;
-    }
-    .mobile-sticky-bar__cta {
-      padding: 0.65rem 1.25rem;
-      font-size: 0.9rem;
-      border-radius: 8px;
-    }
-
-    /* Espacio compensatorio para que la barra flotante no tape el footer en móvil */
-    :global(.site-footer--mobile) {
-      padding-bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px)) !important;
-    }
-  }
-</style>
