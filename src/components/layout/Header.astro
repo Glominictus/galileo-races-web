@@ -49,6 +49,7 @@ const nav = rawNav.map((item) => ({
   ...item,
   active: isNavActive(item.href),
 }));
+const isCatalogPage = path === '/carreras' || path === '/carreras/';
 ---
 
 <HeaderDesktop
@@ -57,6 +58,7 @@ const nav = rawNav.map((item) => ({
   isLoggedIn={isLoggedIn}
   accountLabel={accountLabel}
   accountHref={accountHref}
+  isCatalogPage={isCatalogPage}
 />
 <HeaderMobile
   items={items}
@@ -64,4 +66,5 @@ const nav = rawNav.map((item) => ({
   isLoggedIn={isLoggedIn}
   accountLabel={accountLabel}
   accountHref={accountHref}
+  isCatalogPage={isCatalogPage}
 />
