@@ -11,9 +11,10 @@ interface Props {
   isLoggedIn: boolean;
   accountLabel: string;
   accountHref: string;
+  isCatalogPage?: boolean;
 }
 
-const { items, nav, isLoggedIn, accountLabel, accountHref } = Astro.props;
+const { items, nav, isLoggedIn, accountLabel, accountHref, isCatalogPage = false } = Astro.props;
 ---
 
 <header class="site-header site-header--mobile" id="site-header-mobile">
@@ -38,7 +39,7 @@ const { items, nav, isLoggedIn, accountLabel, accountHref } = Astro.props;
   <!-- Cortina Desplegable (Móvil) -->
   <div id="site-nav-mobile" class="site-header__mobile-menu">
     <div class="site-header__mobile-search">
-      <RaceSearch races={items} client:idle />
+      <RaceSearch races={items} isCatalogPage={isCatalogPage} client:idle />
     </div>
     <nav aria-label="Navegación móvil">
       {

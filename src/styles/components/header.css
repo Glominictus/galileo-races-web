@@ -27,6 +27,15 @@
   justify-content: flex-start;
 }
 
+.site-header--compact {
+  height: 72px !important;
+  min-height: 72px !important;
+}
+
+body:has(.site-header--compact) main {
+  padding-top: 72px;
+}
+
 .site-header--desktop .site-header__container {
   height: 72px;
   max-width: 1720px;
