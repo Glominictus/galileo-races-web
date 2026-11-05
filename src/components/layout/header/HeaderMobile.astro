@@ -132,11 +132,3 @@ const { items, nav, isLoggedIn, accountLabel, accountHref } = Astro.props;
   document.addEventListener('astro:page-load', setupMenu);
   setupMenu();
 </script>
-
-<style>
-  @media (min-width: 769px) {
-    .site-header--mobile {
-      display: none !important;
-    }
-  }
-</style>

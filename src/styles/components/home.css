@@ -2,15 +2,6 @@
    PÁGINA DE INICIO (HOME)
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   SECCIONES COMUNES
-   -------------------------------------------------------------------------- */
-.section-container {
-  max-width: 1720px;
-  margin: 0 auto;
-  padding: 0 clamp(1rem, 2.5vw, 2rem);
-}
-
 .section-upcoming {
   padding: clamp(1.25rem, 2vw, 2rem) 0 clamp(2.5rem, 3.5vw, 4rem);
 }

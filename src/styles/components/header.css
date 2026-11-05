@@ -295,6 +295,18 @@
    MENÚ RESPONSIVO (MÓVIL)
    ========================================================================== */
 
+@media (min-width: 769px) {
+  .site-header--mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-header--desktop {
+    display: none !important;
+  }
+}
+
 .menu-toggle,
 .site-header__mobile-menu,
 .site-header__backdrop {
